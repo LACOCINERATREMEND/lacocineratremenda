@@ -20,7 +20,7 @@ import { LanguageSwitcher, useLanguage } from "@/components/language";
 
 const homeButton = cn(
   buttonVariants({ size: "lg" }),
-  "h-auto min-h-11 w-full rounded-sm px-1 py-2 text-center text-[0.8rem] leading-tight font-semibold tracking-tight whitespace-normal sm:min-h-12 sm:px-3 sm:text-base",
+  "h-auto min-h-12 w-full rounded-sm px-1 py-2 text-center text-sm leading-tight font-semibold tracking-tight whitespace-normal sm:min-h-14 sm:px-3 sm:text-lg",
 );
 
 export function HomeHero() {
@@ -96,11 +96,11 @@ export function HomeHero() {
             width={351}
             height={323}
             priority
-            className="h-[clamp(156px,28vh,250px)] w-auto max-w-[82vw] object-contain sm:h-auto sm:w-[min(46vw,380px)] sm:max-w-none"
+            className="h-[clamp(220px,40vh,340px)] w-auto max-w-[94vw] object-contain sm:h-auto sm:w-[min(52vw,440px)] sm:max-w-none"
           />
         </button>
 
-        <h1 className="mt-1 w-full font-display text-[clamp(1.45rem,6.5vw,2rem)] leading-[0.95] font-normal tracking-[-0.03em] text-[#f4efe6] sm:mt-6 sm:text-6xl">
+        <h1 className="mt-2 w-full font-display text-[clamp(1.7rem,7.4vw,2.35rem)] leading-[0.95] font-normal tracking-[-0.04em] text-[#f4efe6] sm:mt-6 sm:text-7xl">
           {ui.headline.split("\n").map((line) => (
             <span key={line} className="block whitespace-nowrap sm:whitespace-normal">
               {line}
@@ -137,6 +137,41 @@ export function HomeHero() {
             {ui.contact}
           </Link>
         </div>
+
+        <section className="mt-10 w-full text-left sm:mt-14">
+          <div className="mb-6 flex h-px w-16" aria-hidden="true">
+            <span className="flex-1 bg-italy-green" />
+            <span className="flex-1 bg-[#f4efe6]" />
+            <span className="flex-1 bg-italy-red" />
+          </div>
+          <p className="font-heading text-3xl leading-tight font-medium text-[#f4efe6] italic sm:text-4xl">
+            Benvenuti a La Cocinera Tremenda
+          </p>
+          <p className="mt-4 font-heading text-xl leading-snug text-[#f4efe6]/90 italic">
+            Un pedacito de Italia en Sevilla
+          </p>
+          <div className="mt-6 space-y-5 text-base leading-8 text-[#f4efe6]/85 sm:text-lg">
+            <p>
+              En La Cocinera Tremenda creemos que la cocina italiana es mucho más que comida: es tradición, pasión, creatividad y, sobre todo, una forma de compartir momentos inolvidables.
+            </p>
+            <p>
+              Somos un espacio donde Italia se vive, se saborea y se disfruta. Un lugar en el que la pasta fresca artesanal es protagonista, donde cada día puedes descubrir un plato diferente y donde la gastronomía italiana se convierte en una experiencia para todos los sentidos.
+            </p>
+            <p>
+              Nuestra propuesta combina restaurante italiano, tienda de productos gourmet y un espacio acogedor donde reunirse alrededor de una buena mesa. Desde nuestras pastas frescas hasta nuestras focaccias y piadinas, cada propuesta está pensada para acercarte a los sabores y al espíritu de Italia.
+            </p>
+            <p>
+              Pero La Cocinera Tremenda es mucho más que un restaurante. Somos también un hogar abierto a experiencias especiales: talleres de pasta fresca, cumpleaños, comidas de empresa, reuniones familiares y eventos privados para adultos y niños. Porque nos encanta cocinar, enseñar, compartir y crear recuerdos alrededor de la comida.
+            </p>
+            <p>
+              Queremos que cada visita sea diferente, que te sientas como en casa y que siempre encuentres una razón para volver.
+            </p>
+          </div>
+          <p className="mt-8 font-heading text-2xl leading-snug font-medium text-[#f4efe6] italic">
+            La Cocinera Tremenda: Italia, pasión y sabor en cada bocado.
+          </p>
+          <p className="mt-6 font-brush text-5xl text-[#4a9905]">Ti aspettiamo!</p>
+        </section>
       </div>
 
       <Dialog open={open} onOpenChange={onOpenChange}>
