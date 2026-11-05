@@ -22,10 +22,10 @@
   --font-sans: var(--font-outfit);
   --font-mono: ui-monospace, SFMono-Regular, monospace;
   --font-heading: var(--font-bodoni);
-  --font-display: var(--font-heavy-face);
+  --font-display: var(--font-heavy-face), var(--font-jp), sans-serif;
   --font-brush: var(--font-brush-face);
-  --font-chalk: "Right Chalk", cursive;
-  --font-hand: "DJB Chalk It Up", cursive;
+  --font-chalk: "Right Chalk", "DJB Chalk It Up", var(--font-jp), sans-serif;
+  --font-hand: "DJB Chalk It Up", var(--font-jp), sans-serif;
   --color-italy-green: #009246;
   --color-italy-red: #ce2b37;
   --color-sidebar-ring: var(--sidebar-ring);

@@ -16,10 +16,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "cn";
+import { LanguageSwitcher, useLanguage } from "@/components/language";
 
 const homeButton = cn(
   buttonVariants({ size: "lg" }),
-  "h-12 w-full rounded-sm px-3 text-center text-base font-medium tracking-wide",
+  "h-auto min-h-12 w-full rounded-sm px-3 py-2 text-center text-base leading-tight font-medium tracking-wide whitespace-normal",
 );
 
 export function HomeHero() {
@@ -29,6 +30,7 @@ export function HomeHero() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const { ui } = useLanguage();
 
   function onLogoTap() {
     const now = Date.now();
@@ -61,18 +63,15 @@ export function HomeHero() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ password }),
       });
-      const data = (await response.json().catch(() => null)) as {
-        error?: string;
-      } | null;
       if (!response.ok) {
-        setError(data?.error ?? "Contraseña incorrecta.");
+        setError(response.status === 401 ? ui.badPassword : ui.loginFail);
         return;
       }
       setOpen(false);
       router.push("/admin");
       router.refresh();
     } catch {
-      setError("No se ha podido entrar. Prueba de nuevo.");
+      setError(ui.loginFail);
     } finally {
       setSubmitting(false);
     }
@@ -85,6 +84,7 @@ export function HomeHero() {
         aria-hidden="true"
       />
       <div className="relative flex w-full max-w-xl flex-col items-center text-center">
+        <LanguageSwitcher className="mb-6" />
         <button
           type="button"
           onClick={onLogoTap}
@@ -101,7 +101,7 @@ export function HomeHero() {
         </button>
 
         <h1 className="mt-8 max-w-[12ch] font-display text-[2.65rem] leading-[0.9] font-normal tracking-[-0.03em] text-[#f4efe6] sm:max-w-none sm:text-6xl">
-          Gastrobar de especialidad italiana
+          {ui.headline}
         </h1>
 
         <div className="mt-10 grid w-full max-w-md grid-cols-1 gap-3 sm:max-w-none sm:grid-cols-3">
@@ -112,7 +112,7 @@ export function HomeHero() {
               "bg-[#009246] text-white hover:bg-[#007a3a]",
             )}
           >
-            Ver carta
+            {ui.seeMenu}
           </Link>
           <Link
             href="/cursos"
@@ -121,7 +121,7 @@ export function HomeHero() {
               "bg-[#f4efe6] text-[#141210] hover:bg-white",
             )}
           >
-            Nuestros cursos
+            {ui.courses}
           </Link>
           <Link
             href="/contacto"
@@ -130,7 +130,7 @@ export function HomeHero() {
               "bg-[#ce2b37] text-white hover:bg-[#b42330]",
             )}
           >
-            Contáctanos
+            {ui.contact}
           </Link>
         </div>
       </div>
@@ -139,15 +139,15 @@ export function HomeHero() {
         <DialogContent showCloseButton={false} className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="font-heading text-4xl font-medium">
-              Acceso
+              {ui.access}
             </DialogTitle>
             <DialogDescription>
-              Introduce la contraseña para gestionar los cursos.
+              {ui.accessHelp}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={onSubmit} className="grid gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="password">Contraseña</Label>
+              <Label htmlFor="password">{ui.password}</Label>
               <Input
                 id="password"
                 name="password"
@@ -172,10 +172,10 @@ export function HomeHero() {
                 className="h-11"
                 onClick={() => onOpenChange(false)}
               >
-                Cancelar
+                {ui.cancel}
               </Button>
               <Button type="submit" className="h-11" disabled={submitting}>
-                {submitting ? "Entrando…" : "Entrar"}
+                {submitting ? ui.entering : ui.enter}
               </Button>
             </div>
           </form>

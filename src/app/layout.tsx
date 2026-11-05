@@ -1,5 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Alex_Brush, Archivo_Black, Bodoni_Moda, Outfit } from "next/font/google";
+import {
+  Alex_Brush,
+  Archivo_Black,
+  Bodoni_Moda,
+  Noto_Sans_JP,
+  Outfit,
+} from "next/font/google";
+import { LanguageProvider } from "@/components/language";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -26,6 +33,13 @@ const brush = Alex_Brush({
   variable: "--font-brush-face",
 });
 
+const japanese = Noto_Sans_JP({
+  weight: ["500", "700"],
+  subsets: ["latin"],
+  variable: "--font-jp",
+  preload: false,
+});
+
 export const metadata: Metadata = {
   title: {
     default: "La Cocinera Tremenda",
@@ -49,7 +63,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${outfit.variable} ${bodoni.variable} ${heavy.variable} ${brush.variable} dark h-full antialiased`}
+      className={`${outfit.variable} ${bodoni.variable} ${heavy.variable} ${brush.variable} ${japanese.variable} dark h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <div className="flex h-0.5 w-full" aria-hidden="true">
@@ -57,7 +71,7 @@ export default function RootLayout({
           <span className="flex-1 bg-[#f4efe6]" />
           <span className="flex-1 bg-italy-red" />
         </div>
-        {children}
+        <LanguageProvider>{children}</LanguageProvider>
       </body>
     </html>
   );

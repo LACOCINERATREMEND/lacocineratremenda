@@ -1,70 +1,14 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
-import {
-  cartaCopy,
-  languages,
-  type Lang,
-  type Named,
-  type Priced,
-} from "@/data/carta-i18n";
-
-const flags: Record<Lang, ReactNode> = {
-  es: <Bands colors={["#c60b1e", "#ffc400", "#c60b1e"]} label="Español" direction="row" />,
-  it: <Bands colors={["#009246", "#ffffff", "#ce2b37"]} label="Italiano" />,
-  en: <UnionJack />,
-  fr: <Bands colors={["#0055a4", "#ffffff", "#ef4135"]} label="Français" />,
-  de: <Bands colors={["#000000", "#dd0000", "#ffce00"]} label="Deutsch" direction="row" />,
-  pt: <Bands colors={["#006600", "#ff0000"]} label="Português" />,
-  ja: <Japan />,
-};
-
-function Bands({
-  colors,
-  label,
-  direction = "col",
-}: {
-  colors: string[];
-  label: string;
-  direction?: "col" | "row";
-}) {
-  return (
-    <span
-      className={`flex h-6 w-9 overflow-hidden rounded-[2px] ring-1 ring-black/30 ${direction === "row" ? "flex-col" : ""}`}
-      role="img"
-      aria-label={label}
-    >
-      {colors.map((color) => (
-        <span key={color + label} className="flex-1" style={{ background: color }} />
-      ))}
-    </span>
-  );
-}
-
-function UnionJack() {
-  return (
-    <span className="relative block h-6 w-9 overflow-hidden rounded-[2px] bg-[#012169] ring-1 ring-black/30" role="img" aria-label="English">
-      <span className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 bg-white" />
-      <span className="absolute inset-y-0 left-1/2 w-1.5 -translate-x-1/2 bg-white" />
-      <span className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 bg-[#c8102e]" />
-      <span className="absolute inset-y-0 left-1/2 w-1 -translate-x-1/2 bg-[#c8102e]" />
-    </span>
-  );
-}
-
-function Japan() {
-  return (
-    <span className="flex h-6 w-9 items-center justify-center rounded-[2px] bg-white ring-1 ring-black/20" role="img" aria-label="日本語">
-      <span className="size-3 rounded-full bg-[#bc002d]" />
-    </span>
-  );
-}
+import Link from "next/link";
+import { cartaCopy, type Named, type Priced } from "@/data/carta-i18n";
+import { LanguageSwitcher, useLanguage } from "@/components/language";
 
 function Row({ item }: { item: Priced }) {
   return (
     <li className="py-2">
       <div className="flex items-baseline justify-between gap-4">
-        <p className="font-hand text-[1.65rem] leading-tight text-[#fffb00]">{item.name}</p>
+        <p className="min-w-0 font-hand text-[1.65rem] leading-tight break-words text-[#fffb00]">{item.name}</p>
         {item.price ? (
           <p className="shrink-0 font-hand text-[1.45rem] leading-none text-white">{item.price}</p>
         ) : null}
@@ -84,44 +28,19 @@ function Focus({ item }: { item: Named }) {
 }
 
 export function LiveCarta() {
-  const [lang, setLang] = useState<Lang>("es");
+  const { lang, ui } = useLanguage();
   const copy = cartaCopy[lang];
 
   return (
     <div>
       <div className="sticky top-0 z-20 border-b border-white/10 bg-[#141816]/95 px-3 py-3 backdrop-blur">
-        <p className="px-2 text-center font-chalk text-[2.4rem] leading-none text-[#f70000] sm:text-5xl">{copy.menuWord}</p>
-        <div className="mx-auto mt-3 flex max-w-3xl flex-wrap items-center justify-center gap-2" role="group" aria-label={copy.menuWord}>
-          {languages.map((language) => {
-            const active = language.code === lang;
-            return (
-              <button
-                key={language.code}
-                type="button"
-                aria-pressed={active}
-                onClick={() => setLang(language.code)}
-                className={`flex min-h-12 min-w-16 items-center gap-2 rounded-sm border px-2 py-1 ${
-                  active ? "border-[#fffb00] bg-white/10" : "border-white/25"
-                }`}
-              >
-                {flags[language.code]}
-                <span className="font-hand text-lg leading-none text-white">{language.short}</span>
-                <span className="sr-only">{language.label}</span>
-              </button>
-            );
-          })}
-        </div>
-        <nav className="mx-auto mt-3 flex max-w-3xl flex-wrap justify-center gap-2">
-          {copy.jumps.map((jump) => (
-            <a
-              key={jump.id}
-              href={`#${jump.id}`}
-              className="inline-flex min-h-11 items-center border border-white/40 px-3 font-hand text-lg text-white"
-            >
-              {jump.label}
-            </a>
-          ))}
-        </nav>
+        <Link href="/" className="inline-flex min-h-11 items-center font-hand text-2xl text-white">
+          {ui.home}
+        </Link>
+        <p className="px-4 text-center font-chalk text-[clamp(2.6rem,11vw,4.25rem)] leading-none text-[#f70000]">
+          {copy.menuWord}
+        </p>
+        <LanguageSwitcher className="mx-auto mt-3 max-w-3xl" />
       </div>
 
       <div
@@ -137,8 +56,8 @@ export function LiveCarta() {
             {copy.menus.map((menu) => (
               <li key={menu.name}>
                 <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-hand text-[1.7rem] leading-tight text-[#fffb00] sm:text-4xl">{menu.name}</h3>
-                  <p className="shrink-0 font-hand text-2xl text-white">{menu.price}</p>
+                  <h3 className="min-w-0 font-hand text-[1.7rem] leading-tight break-words text-[#fffb00] sm:text-4xl">{menu.name}</h3>
+                  <p className="shrink-0 font-hand text-2xl whitespace-nowrap text-white">{menu.price}</p>
                 </div>
                 {menu.lines.map((line) => (
                   <p key={line} className="font-hand text-xl leading-snug text-white">
