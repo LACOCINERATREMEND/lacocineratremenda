@@ -17,9 +17,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "cn";
 
-const primaryLink = cn(
+const homeButton = cn(
   buttonVariants({ size: "lg" }),
-  "h-12 w-full rounded-sm bg-[#f4efe6] text-base font-medium tracking-wide text-black hover:bg-white",
+  "h-12 w-full rounded-sm px-3 text-center text-base font-medium tracking-wide",
 );
 
 export function HomeHero() {
@@ -101,19 +101,36 @@ export function HomeHero() {
         </button>
 
         <p className="mt-8 font-heading text-3xl leading-tight font-medium text-[#f4efe6] italic sm:text-4xl">
-          Especialidad italiana
-        </p>
-        <p className="mt-4 max-w-sm text-base leading-relaxed text-[#f4efe6]/78">
-          Gastrobar en Sevilla. Pasta fresca artesanal, focaccias y piadinas, y
-          menús para sentarte a la mesa.
+          Gastrobar de especialidad italiana
         </p>
 
-        <div className="mt-10 grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
-          <Link href="/carta" className={primaryLink}>
+        <div className="mt-10 grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
+          <Link
+            href="/carta"
+            className={cn(
+              homeButton,
+              "bg-[#009246] text-white hover:bg-[#007a3a]",
+            )}
+          >
             Ver carta
           </Link>
-          <Link href="/cursos" className={primaryLink}>
+          <Link
+            href="/cursos"
+            className={cn(
+              homeButton,
+              "bg-[#f4efe6] text-[#141210] hover:bg-white",
+            )}
+          >
             Nuestros cursos
+          </Link>
+          <Link
+            href="/contacto"
+            className={cn(
+              homeButton,
+              "bg-[#ce2b37] text-white hover:bg-[#b42330]",
+            )}
+          >
+            Contáctanos
           </Link>
         </div>
       </div>

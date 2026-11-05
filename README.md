@@ -4,8 +4,9 @@ Sitio de La Cocinera Tremenda, gastrobar italiano de especialidad en Sevilla.
 
 ## Páginas
 
-- `/` inicio, con el logo y dos accesos: carta y cursos
-- `/carta` carta digital, tomada del menú impreso
+- `/` inicio, con el logo y tres accesos: carta, cursos y contacto
+- `/contacto` página de contacto
+- `/carta` la carta impresa, con la misma pizarra del PDF
 - `/cursos` vacío hasta que haya cursos publicados
 - Los cursos se crean, editan y eliminan tras cinco toques seguidos en el logo de inicio y la contraseña de `ADMIN_PASSWORD`
 
