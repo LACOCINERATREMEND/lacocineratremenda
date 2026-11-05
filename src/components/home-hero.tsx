@@ -84,7 +84,7 @@ export function HomeHero() {
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(244,239,230,0.09),transparent_58%)]"
         aria-hidden="true"
       />
-      <div className="relative flex w-full max-w-md flex-col items-center text-center">
+      <div className="relative flex w-full max-w-xl flex-col items-center text-center">
         <button
           type="button"
           onClick={onLogoTap}
@@ -100,11 +100,11 @@ export function HomeHero() {
           />
         </button>
 
-        <p className="mt-8 font-heading text-3xl leading-tight font-medium text-[#f4efe6] italic sm:text-4xl">
+        <h1 className="mt-8 max-w-[12ch] font-display text-[2.65rem] leading-[0.9] font-normal tracking-[-0.03em] text-[#f4efe6] sm:max-w-none sm:text-6xl">
           Gastrobar de especialidad italiana
-        </p>
+        </h1>
 
-        <div className="mt-10 grid w-full grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="mt-10 grid w-full max-w-md grid-cols-1 gap-3 sm:max-w-none sm:grid-cols-3">
           <Link
             href="/carta"
             className={cn(

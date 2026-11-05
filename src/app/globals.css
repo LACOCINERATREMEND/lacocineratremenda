@@ -2,6 +2,18 @@
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
 
+@font-face {
+  font-family: "Right Chalk";
+  src: url("/fonts/rightchalk.woff") format("woff");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DJB Chalk It Up";
+  src: url("/fonts/djbchalkitup.woff") format("woff");
+  font-display: swap;
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
@@ -10,6 +22,10 @@
   --font-sans: var(--font-outfit);
   --font-mono: ui-monospace, SFMono-Regular, monospace;
   --font-heading: var(--font-bodoni);
+  --font-display: var(--font-heavy-face);
+  --font-brush: var(--font-brush-face);
+  --font-chalk: "Right Chalk", cursive;
+  --font-hand: "DJB Chalk It Up", cursive;
   --color-italy-green: #009246;
   --color-italy-red: #ce2b37;
   --color-sidebar-ring: var(--sidebar-ring);

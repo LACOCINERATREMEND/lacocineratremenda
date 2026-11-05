@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Bodoni_Moda, Outfit } from "next/font/google";
+import { Alex_Brush, Archivo_Black, Bodoni_Moda, Outfit } from "next/font/google";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -12,6 +12,18 @@ const bodoni = Bodoni_Moda({
   weight: ["500", "600", "700"],
   style: ["normal", "italic"],
   variable: "--font-bodoni",
+});
+
+const heavy = Archivo_Black({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-heavy-face",
+});
+
+const brush = Alex_Brush({
+  subsets: ["latin"],
+  weight: "400",
+  variable: "--font-brush-face",
 });
 
 export const metadata: Metadata = {
@@ -37,7 +49,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${outfit.variable} ${bodoni.variable} dark h-full antialiased`}
+      className={`${outfit.variable} ${bodoni.variable} ${heavy.variable} ${brush.variable} dark h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <div className="flex h-0.5 w-full" aria-hidden="true">
