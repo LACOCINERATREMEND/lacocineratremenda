@@ -30,7 +30,7 @@ export function HomeHero() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const { ui } = useLanguage();
+  const { lang, ui } = useLanguage();
 
   function onLogoTap() {
     const now = Date.now();
@@ -145,32 +145,53 @@ export function HomeHero() {
             <span className="flex-1 bg-italy-red" />
           </div>
           <p className="font-heading text-3xl leading-tight font-medium text-[#f4efe6] italic sm:text-4xl">
-            Benvenuti a La Cocinera Tremenda
+            {ui.welcomeTitle}
           </p>
           <p className="mt-4 font-heading text-xl leading-snug text-[#f4efe6]/90 italic">
-            Un pedacito de Italia en Sevilla
+            {ui.welcomeSubtitle}
           </p>
           <div className="mt-6 space-y-5 text-base leading-8 text-[#f4efe6]/85 sm:text-lg">
-            <p>
-              En La Cocinera Tremenda creemos que la cocina italiana es mucho más que comida: es tradición, pasión, creatividad y, sobre todo, una forma de compartir momentos inolvidables.
-            </p>
-            <p>
-              Somos un espacio donde Italia se vive, se saborea y se disfruta. Un lugar en el que la pasta fresca artesanal es protagonista, donde cada día puedes descubrir un plato diferente y donde la gastronomía italiana se convierte en una experiencia para todos los sentidos.
-            </p>
-            <p>
-              Nuestra propuesta combina restaurante italiano, tienda de productos gourmet y un espacio acogedor donde reunirse alrededor de una buena mesa. Desde nuestras pastas frescas hasta nuestras focaccias y piadinas, cada propuesta está pensada para acercarte a los sabores y al espíritu de Italia.
-            </p>
-            <p>
-              Pero La Cocinera Tremenda es mucho más que un restaurante. Somos también un hogar abierto a experiencias especiales: talleres de pasta fresca, cumpleaños, comidas de empresa, reuniones familiares y eventos privados para adultos y niños. Porque nos encanta cocinar, enseñar, compartir y crear recuerdos alrededor de la comida.
-            </p>
-            <p>
-              Queremos que cada visita sea diferente, que te sientas como en casa y que siempre encuentres una razón para volver.
-            </p>
+            {ui.welcome.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
           </div>
           <p className="mt-8 font-heading text-2xl leading-snug font-medium text-[#f4efe6] italic">
-            La Cocinera Tremenda: Italia, pasión y sabor en cada bocado.
+            {ui.welcomeClose}
           </p>
-          <p className="mt-6 font-brush text-5xl text-[#4a9905]">Ti aspettiamo!</p>
+          <p className="mt-6 font-brush text-5xl text-[#4a9905]">{ui.welcomeBye}</p>
+        </section>
+
+        <section className="mt-14 w-full text-left sm:mt-16">
+          <div className="mb-6 flex h-px w-16" aria-hidden="true">
+            <span className="flex-1 bg-italy-green" />
+            <span className="flex-1 bg-[#f4efe6]" />
+            <span className="flex-1 bg-italy-red" />
+          </div>
+          <h2 className="font-heading text-3xl leading-tight font-medium text-[#f4efe6] italic sm:text-4xl">
+            {ui.findTitle}
+          </h2>
+          <div className="mt-6 space-y-5 text-base leading-8 text-[#f4efe6]/85 sm:text-lg">
+            {ui.find.map((paragraph) => (
+              <p key={paragraph}>{paragraph}</p>
+            ))}
+          </div>
+          <p className="mt-6 font-heading text-2xl leading-snug font-medium text-[#f4efe6] italic">
+            {ui.findBye}
+          </p>
+          <p className="mt-5 text-base leading-7 text-[#f4efe6] sm:text-lg">
+            📍 {ui.address}
+          </p>
+          <div className="mt-6 overflow-hidden rounded-sm border border-[#f4efe6]/20">
+            <iframe
+              key={lang}
+              title={ui.mapTitle}
+              src={`https://maps.google.com/maps?hl=${lang}&q=La%20Cocinera%20Tremenda%2C%20puesto%2013%2C%20Calle%20Pastor%20y%20Landero%208%2C%20Sevilla&z=17&output=embed`}
+              className="block h-[min(78vw,420px)] w-full border-0"
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              allowFullScreen
+            />
+          </div>
         </section>
       </div>
 

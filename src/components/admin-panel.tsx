@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { Course } from "@/lib/types";
+import { useLanguage } from "@/components/language";
 
 const emptyForm = {
   title: "",
@@ -24,6 +25,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
+  const { ui } = useLanguage();
 
   function updateField(key: keyof typeof emptyForm, value: string) {
     setForm((current) => ({ ...current, [key]: value }));
@@ -67,7 +69,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
         return;
       }
       if (!response.ok || !data || !data.id) {
-        setError(data?.error ?? "No se ha podido guardar.");
+        setError(ui.adminSaveError);
         return;
       }
       setCourses((current) => {
@@ -79,7 +81,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
       resetForm();
       router.refresh();
     } catch {
-      setError("No se ha podido guardar.");
+      setError(ui.adminSaveError);
     } finally {
       setSaving(false);
     }
@@ -95,10 +97,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
         return;
       }
       if (!response.ok) {
-        const data = (await response.json().catch(() => null)) as {
-          error?: string;
-        } | null;
-        setError(data?.error ?? "No se ha podido eliminar.");
+        setError(ui.adminDeleteError);
         return;
       }
       setCourses((current) => current.filter((course) => course.id !== id));
@@ -106,7 +105,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
       setPendingDelete(null);
       router.refresh();
     } catch {
-      setError("No se ha podido eliminar.");
+      setError(ui.adminDeleteError);
     } finally {
       setSaving(false);
     }
@@ -127,7 +126,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
               La Cocinera Tremenda
             </p>
             <h1 className="mt-4 font-heading text-5xl leading-none font-medium italic">
-              Cursos
+              {ui.adminCourses}
             </h1>
           </div>
           <Button
@@ -136,19 +135,19 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
             className="h-11 shrink-0"
             onClick={logout}
           >
-            Cerrar sesión
+            {ui.adminLogout}
           </Button>
         </div>
         <p className="mt-4 max-w-prose text-sm leading-relaxed text-[#c4b8a4]">
-          Lo que guardes aquí se publica en Nuestros cursos.
+          {ui.adminHint}
         </p>
 
         <form onSubmit={onSubmit} className="mt-10 grid gap-4">
           <h2 className="font-heading text-3xl font-medium">
-            {editing ? "Editar curso" : "Nuevo curso"}
+            {editing ? ui.adminEdit : ui.adminNew}
           </h2>
           <div className="grid gap-2">
-            <Label htmlFor="title">Título</Label>
+            <Label htmlFor="title">{ui.adminTitle}</Label>
             <Input
               id="title"
               value={form.title}
@@ -158,7 +157,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
             />
           </div>
           <div className="grid gap-2">
-            <Label htmlFor="description">Descripción</Label>
+            <Label htmlFor="description">{ui.adminDescription}</Label>
             <Textarea
               id="description"
               value={form.description}
@@ -170,7 +169,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-2">
-              <Label htmlFor="when">Cuándo</Label>
+              <Label htmlFor="when">{ui.adminWhen}</Label>
               <Input
                 id="when"
                 value={form.when}
@@ -179,7 +178,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="price">Precio</Label>
+              <Label htmlFor="price">{ui.adminPrice}</Label>
               <Input
                 id="price"
                 value={form.price}
@@ -195,7 +194,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
           ) : null}
           <div className="flex flex-col gap-3 sm:flex-row">
             <Button type="submit" className="h-11" disabled={saving}>
-              {saving ? "Guardando…" : "Guardar"}
+              {saving ? ui.adminSaving : ui.adminSave}
             </Button>
             {editing ? (
               <Button
@@ -204,7 +203,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                 className="h-11"
                 onClick={resetForm}
               >
-                Cancelar
+                {ui.adminCancel}
               </Button>
             ) : null}
           </div>
@@ -212,11 +211,11 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
 
         <section className="mt-14" aria-labelledby="lista-cursos">
           <h2 id="lista-cursos" className="font-heading text-3xl font-medium">
-            Publicados
+            {ui.adminPublished}
           </h2>
           {courses.length === 0 ? (
             <p className="mt-4 text-sm text-[#c4b8a4]">
-              Todavía no hay cursos publicados.
+              {ui.adminEmpty}
             </p>
           ) : (
             <ul className="mt-6 divide-y divide-[#f4efe6]/12">
@@ -247,7 +246,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                       className="h-11"
                       onClick={() => startEdit(course)}
                     >
-                      Editar
+                      {ui.adminEditBtn}
                     </Button>
                     {pendingDelete === course.id ? (
                       <>
@@ -258,7 +257,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                           disabled={saving}
                           onClick={() => remove(course.id)}
                         >
-                          Sí, eliminar
+                          {ui.adminYes}
                         </Button>
                         <Button
                           type="button"
@@ -266,7 +265,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                           className="h-11"
                           onClick={() => setPendingDelete(null)}
                         >
-                          No
+                          {ui.adminNo}
                         </Button>
                       </>
                     ) : (
@@ -276,13 +275,13 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                         className="h-11"
                         onClick={() => setPendingDelete(course.id)}
                       >
-                        Eliminar
+                        {ui.adminDelete}
                       </Button>
                     )}
                   </div>
                   {pendingDelete === course.id ? (
                     <p className="mt-2 text-sm text-[#c4b8a4]">
-                      ¿Eliminar este curso?
+                      {ui.adminConfirm}
                     </p>
                   ) : null}
                 </li>
@@ -295,7 +294,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
           href="/"
           className="mt-12 inline-block text-[0.72rem] tracking-[0.28em] text-[#f4efe6]/65 uppercase"
         >
-          Inicio
+          {ui.home}
         </Link>
       </main>
     </div>
