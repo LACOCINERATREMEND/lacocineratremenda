@@ -20,7 +20,7 @@ import { LanguageSwitcher, useLanguage } from "@/components/language";
 
 const homeButton = cn(
   buttonVariants({ size: "lg" }),
-  "h-auto min-h-12 w-full rounded-sm px-3 py-2 text-center text-base leading-tight font-medium tracking-wide whitespace-normal",
+  "h-auto min-h-11 w-full rounded-sm px-1 py-2 text-center text-[0.68rem] leading-tight font-semibold tracking-tight whitespace-normal sm:min-h-12 sm:px-3 sm:text-base",
 );
 
 export function HomeHero() {
@@ -78,17 +78,17 @@ export function HomeHero() {
   }
 
   return (
-    <div className="relative flex flex-1 flex-col items-center justify-center px-6 py-16">
+    <div className="relative flex w-full flex-col items-center justify-center px-3 pt-2 pb-1 sm:px-6 sm:py-16">
       <div
         className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(244,239,230,0.09),transparent_58%)]"
         aria-hidden="true"
       />
       <div className="relative flex w-full max-w-xl flex-col items-center text-center">
-        <LanguageSwitcher className="mb-6" />
+        <LanguageSwitcher compact className="mb-1" />
         <button
           type="button"
           onClick={onLogoTap}
-          className="rounded-sm border-0 bg-transparent p-0 touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-[#f4efe6]"
+          className="rounded-sm border-0 bg-transparent p-0 touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#f4efe6]"
         >
           <Image
             src="/logo.png"
@@ -96,15 +96,19 @@ export function HomeHero() {
             width={351}
             height={323}
             priority
-            className="h-auto w-[min(88vw,420px)]"
+            className="h-[clamp(108px,20vh,200px)] w-auto max-w-[68vw] object-contain sm:h-auto sm:w-[min(42vw,340px)] sm:max-w-none"
           />
         </button>
 
-        <h1 className="mt-8 max-w-[12ch] font-display text-[2.65rem] leading-[0.9] font-normal tracking-[-0.03em] text-[#f4efe6] sm:max-w-none sm:text-6xl">
-          {ui.headline}
+        <h1 className="mt-1 w-full font-display text-[clamp(1.15rem,5vw,1.7rem)] leading-[0.95] font-normal tracking-[-0.03em] text-[#f4efe6] sm:mt-6 sm:text-5xl">
+          {ui.headline.split("\n").map((line) => (
+            <span key={line} className="block whitespace-nowrap sm:whitespace-normal">
+              {line}
+            </span>
+          ))}
         </h1>
 
-        <div className="mt-10 grid w-full max-w-md grid-cols-1 gap-3 sm:max-w-none sm:grid-cols-3">
+        <div className="mt-2 grid w-full grid-cols-3 gap-1.5 sm:mt-8 sm:gap-3">
           <Link
             href="/carta"
             className={cn(

@@ -56,14 +56,16 @@ function Bands({
   colors,
   label,
   direction = "col",
+  compact = false,
 }: {
   colors: string[];
   label: string;
   direction?: "col" | "row";
+  compact?: boolean;
 }) {
   return (
     <span
-      className={`flex h-6 w-9 overflow-hidden rounded-[2px] ring-1 ring-black/30 ${direction === "row" ? "flex-col" : ""}`}
+      className={`flex overflow-hidden rounded-[2px] ring-1 ring-black/30 ${compact ? "h-3.5 w-5" : "h-6 w-9"} ${direction === "row" ? "flex-col" : ""}`}
       role="img"
       aria-label={label}
     >
@@ -74,9 +76,9 @@ function Bands({
   );
 }
 
-function UnionJack() {
+function UnionJack({ compact = false }: { compact?: boolean }) {
   return (
-    <span className="relative block h-6 w-9 overflow-hidden rounded-[2px] bg-[#012169] ring-1 ring-black/30" role="img" aria-label="English">
+    <span className={`relative block overflow-hidden rounded-[2px] bg-[#012169] ring-1 ring-black/30 ${compact ? "h-3.5 w-5" : "h-6 w-9"}`} role="img" aria-label="English">
       <span className="absolute inset-x-0 top-1/2 h-1.5 -translate-y-1/2 bg-white" />
       <span className="absolute inset-y-0 left-1/2 w-1.5 -translate-x-1/2 bg-white" />
       <span className="absolute inset-x-0 top-1/2 h-1 -translate-y-1/2 bg-[#c8102e]" />
@@ -85,29 +87,39 @@ function UnionJack() {
   );
 }
 
-function Japan() {
+function Japan({ compact = false }: { compact?: boolean }) {
   return (
-    <span className="flex h-6 w-9 items-center justify-center rounded-[2px] bg-white ring-1 ring-black/20" role="img" aria-label="日本語">
-      <span className="size-3 rounded-full bg-[#bc002d]" />
+    <span className={`flex items-center justify-center rounded-[2px] bg-white ring-1 ring-black/20 ${compact ? "h-3.5 w-5" : "h-6 w-9"}`} role="img" aria-label="日本語">
+      <span className={`rounded-full bg-[#bc002d] ${compact ? "size-2" : "size-3"}`} />
     </span>
   );
 }
 
-const flags: Record<Lang, ReactNode> = {
-  es: <Bands colors={["#c60b1e", "#ffc400", "#c60b1e"]} label="Español" direction="row" />,
-  it: <Bands colors={["#009246", "#ffffff", "#ce2b37"]} label="Italiano" />,
-  en: <UnionJack />,
-  fr: <Bands colors={["#0055a4", "#ffffff", "#ef4135"]} label="Français" />,
-  de: <Bands colors={["#000000", "#dd0000", "#ffce00"]} label="Deutsch" direction="row" />,
-  pt: <Bands colors={["#006600", "#ff0000"]} label="Português" />,
-  ja: <Japan />,
-};
+function flagFor(code: Lang, compact: boolean): ReactNode {
+  if (code === "es") return <Bands colors={["#c60b1e", "#ffc400", "#c60b1e"]} label="Español" direction="row" compact={compact} />;
+  if (code === "it") return <Bands colors={["#009246", "#ffffff", "#ce2b37"]} label="Italiano" compact={compact} />;
+  if (code === "en") return <UnionJack compact={compact} />;
+  if (code === "fr") return <Bands colors={["#0055a4", "#ffffff", "#ef4135"]} label="Français" compact={compact} />;
+  if (code === "de") return <Bands colors={["#000000", "#dd0000", "#ffce00"]} label="Deutsch" direction="row" compact={compact} />;
+  if (code === "pt") return <Bands colors={["#006600", "#ff0000"]} label="Português" compact={compact} />;
+  return <Japan compact={compact} />;
+}
 
-export function LanguageSwitcher({ className = "" }: { className?: string }) {
+export function LanguageSwitcher({
+  className = "",
+  compact = false,
+}: {
+  className?: string;
+  compact?: boolean;
+}) {
   const { lang, setLang } = useLanguage();
 
   return (
-    <div className={`flex flex-wrap items-center justify-center gap-2 ${className}`} role="group" aria-label="Language">
+    <div
+      className={`flex items-stretch justify-center ${compact ? "w-full flex-nowrap gap-1" : "flex-wrap gap-2"} ${className}`}
+      role="group"
+      aria-label="Language"
+    >
       {languages.map((language) => {
         const active = language.code === lang;
         return (
@@ -116,12 +128,16 @@ export function LanguageSwitcher({ className = "" }: { className?: string }) {
             type="button"
             aria-pressed={active}
             onClick={() => setLang(language.code)}
-            className={`flex min-h-12 min-w-16 items-center gap-2 rounded-sm border px-2 py-1 ${
-              active ? "border-[#fffb00] bg-white/10" : "border-white/25"
-            }`}
+            className={`flex items-center justify-center rounded-sm border ${
+              compact
+                ? "min-h-10 min-w-0 flex-1 flex-col gap-0.5 px-0 py-1"
+                : "min-h-12 min-w-16 gap-2 px-2 py-1"
+            } ${active ? "border-[#fffb00] bg-white/10" : "border-white/25"}`}
           >
-            {flags[language.code]}
-            <span className="font-hand text-lg leading-none text-white">{language.short}</span>
+            {flagFor(language.code, compact)}
+            <span className={`leading-none text-white ${compact ? "text-[10px] font-sans font-semibold" : "font-hand text-lg"}`}>
+              {language.short}
+            </span>
             <span className="sr-only">{language.label}</span>
           </button>
         );

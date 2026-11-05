@@ -22,7 +22,7 @@ export type UiCopy = {
 
 export const uiCopy: Record<Lang, UiCopy> = {
   es: {
-    headline: "Gastrobar de especialidad italiana",
+    headline: "Gastrobar de\nEspecialidad Italiana",
     seeMenu: "Ver carta",
     courses: "Nuestros cursos",
     contact: "Contáctanos",
@@ -42,7 +42,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     loginFail: "No se ha podido entrar. Prueba de nuevo.",
   },
   it: {
-    headline: "Gastrobar di specialità italiana",
+    headline: "Gastrobar di\nspecialità italiana",
     seeMenu: "Vedi il menu",
     courses: "I nostri corsi",
     contact: "Contattaci",
@@ -62,7 +62,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     loginFail: "Accesso non riuscito. Riprova.",
   },
   en: {
-    headline: "Italian specialty gastrobar",
+    headline: "Italian specialty\ngastrobar",
     seeMenu: "See the menu",
     courses: "Our courses",
     contact: "Contact us",
@@ -82,7 +82,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     loginFail: "Could not sign in. Try again.",
   },
   fr: {
-    headline: "Gastrobar de spécialité italienne",
+    headline: "Gastrobar de\nspécialité italienne",
     seeMenu: "Voir la carte",
     courses: "Nos cours",
     contact: "Contactez-nous",
@@ -102,7 +102,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     loginFail: "Connexion impossible. Réessayez.",
   },
   de: {
-    headline: "Italienische Spezialitäten-Gastrobar",
+    headline: "Italienische\nSpezialitäten-Gastrobar",
     seeMenu: "Speisekarte",
     courses: "Unsere Kurse",
     contact: "Kontakt",
@@ -122,7 +122,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     loginFail: "Anmeldung fehlgeschlagen. Bitte erneut versuchen.",
   },
   pt: {
-    headline: "Gastrobar de especialidade italiana",
+    headline: "Gastrobar de\nespecialidade italiana",
     seeMenu: "Ver o menu",
     courses: "Os nossos cursos",
     contact: "Contacte-nos",
@@ -142,7 +142,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     loginFail: "Não foi possível entrar. Tente novamente.",
   },
   ja: {
-    headline: "イタリア料理のガストロバー",
+    headline: "イタリア料理の\nガストロバー",
     seeMenu: "メニューを見る",
     courses: "コース",
     contact: "お問い合わせ",
