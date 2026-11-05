@@ -33,22 +33,27 @@ export function LiveCarta() {
 
   return (
     <div>
-      <div className="sticky top-0 z-20 border-b border-white/10 bg-[#141816]/95 px-3 py-3 backdrop-blur">
+      <div className="sticky top-0 z-20 bg-[#101210] px-3 py-2">
         <Link href="/" className="inline-flex min-h-11 items-center font-hand text-2xl text-white">
           {ui.home}
         </Link>
+      </div>
+      <div className="px-3 pb-3">
         <p className="px-4 text-center font-chalk text-[clamp(2.6rem,11vw,4.25rem)] leading-none text-[#f70000]">
           {copy.menuWord}
         </p>
-        <LanguageSwitcher className="mx-auto mt-3 max-w-3xl" />
+        <LanguageSwitcher compact className="mt-3" />
       </div>
 
       <div
         className="mx-auto max-w-3xl bg-[#1a1c18] bg-cover bg-center px-4 py-8 sm:px-8"
         style={{ backgroundImage: "url(/chalkboard.webp)" }}
       >
-        <div className="mx-auto mb-3 h-2 max-w-xs bg-[#4a9905]" />
-        <div className="mx-auto mb-8 h-2 max-w-sm bg-[#f70000]" />
+        <div className="mx-auto mb-8 flex h-2 w-full max-w-sm" aria-hidden="true">
+          <span className="flex-1 bg-[#4a9905]" />
+          <span className="flex-1 bg-white" />
+          <span className="flex-1 bg-[#f70000]" />
+        </div>
 
         <section id="combo" className="scroll-mt-40 text-center">
           <h2 className="font-chalk text-4xl text-white sm:text-5xl">{copy.combo}</h2>
