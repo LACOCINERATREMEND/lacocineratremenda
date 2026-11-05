@@ -20,7 +20,7 @@ import { LanguageSwitcher, useLanguage } from "@/components/language";
 
 const homeButton = cn(
   buttonVariants({ size: "lg" }),
-  "h-auto min-h-11 w-full rounded-sm px-1 py-2 text-center text-[0.68rem] leading-tight font-semibold tracking-tight whitespace-normal sm:min-h-12 sm:px-3 sm:text-base",
+  "h-auto min-h-11 w-full rounded-sm px-1 py-2 text-center text-[0.8rem] leading-tight font-semibold tracking-tight whitespace-normal sm:min-h-12 sm:px-3 sm:text-base",
 );
 
 export function HomeHero() {
@@ -96,11 +96,11 @@ export function HomeHero() {
             width={351}
             height={323}
             priority
-            className="h-[clamp(108px,20vh,200px)] w-auto max-w-[68vw] object-contain sm:h-auto sm:w-[min(42vw,340px)] sm:max-w-none"
+            className="h-[clamp(156px,28vh,250px)] w-auto max-w-[82vw] object-contain sm:h-auto sm:w-[min(46vw,380px)] sm:max-w-none"
           />
         </button>
 
-        <h1 className="mt-1 w-full font-display text-[clamp(1.15rem,5vw,1.7rem)] leading-[0.95] font-normal tracking-[-0.03em] text-[#f4efe6] sm:mt-6 sm:text-5xl">
+        <h1 className="mt-1 w-full font-display text-[clamp(1.45rem,6.5vw,2rem)] leading-[0.95] font-normal tracking-[-0.03em] text-[#f4efe6] sm:mt-6 sm:text-6xl">
           {ui.headline.split("\n").map((line) => (
             <span key={line} className="block whitespace-nowrap sm:whitespace-normal">
               {line}
