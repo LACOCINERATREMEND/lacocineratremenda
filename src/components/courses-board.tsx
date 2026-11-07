@@ -14,7 +14,7 @@ export function CoursesBoard({
 
   return (
     <div className="flex flex-1 flex-col">
-      <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-10 sm:px-8 sm:py-14">
+      <main className="mx-auto w-full max-w-2xl min-w-0 flex-1 px-4 py-8 sm:px-8 sm:py-14">
         <PageHeader title={ui.courses} />
         {courses === null ? (
           <p role="alert" className="text-base leading-relaxed text-[#f4efe6]/80">
@@ -23,11 +23,30 @@ export function CoursesBoard({
         ) : courses.length === 0 ? (
           <p className="text-base leading-relaxed text-[#f4efe6]/80">{ui.coursesSoon}</p>
         ) : (
-          <ul className="divide-y divide-[#f4efe6]/12">
+          <ul className="grid gap-4">
             {courses.map((course) => (
-              <li key={course.id} className="py-7 first:pt-0">
+              <li key={course.id} className="min-w-0 overflow-hidden rounded-md border border-[#f4efe6]/20">
+                {course.images.length > 0 ? (
+                  <div className={course.images.length > 1 ? "grid grid-cols-2" : ""}>
+                    {course.images.map((src, index) => (
+                      <img
+                        key={src}
+                        src={src}
+                        alt={index === 0 ? course.title : ""}
+                        className={`w-full object-cover ${
+                          course.images.length > 1 &&
+                          course.images.length % 2 === 1 &&
+                          index === course.images.length - 1
+                            ? "col-span-2 aspect-[16/9]"
+                            : "aspect-[4/3]"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                ) : null}
+                <div className="p-4 sm:p-5">
                 <div className="flex items-baseline justify-between gap-4">
-                  <h2 className="font-heading text-4xl leading-none font-medium text-[#f4efe6]">
+                  <h2 className="min-w-0 font-heading text-3xl leading-snug font-medium break-words text-[#f4efe6] sm:text-4xl">
                     {course.title}
                   </h2>
                   {course.price ? (
@@ -42,6 +61,7 @@ export function CoursesBoard({
                     {course.description}
                   </p>
                 ) : null}
+                </div>
               </li>
             ))}
           </ul>

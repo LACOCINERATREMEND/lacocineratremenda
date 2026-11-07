@@ -1,21 +1,36 @@
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { deleteCoursePhoto, isCourseImagePath } from "@/lib/course-images";
 import type { Course, CourseInput } from "@/lib/types";
 
 const filePath = path.join(process.cwd(), "data", "courses.json");
 
-function isCourse(value: unknown): value is Course {
-  if (!value || typeof value !== "object") return false;
+function asCourse(value: unknown): Course | null {
+  if (!value || typeof value !== "object") return null;
   const course = value as Partial<Course>;
-  return (
-    typeof course.id === "string" &&
-    typeof course.title === "string" &&
-    typeof course.description === "string" &&
-    typeof course.when === "string" &&
-    typeof course.price === "string" &&
-    typeof course.updatedAt === "string"
-  );
+  if (
+    typeof course.id !== "string" ||
+    typeof course.title !== "string" ||
+    typeof course.description !== "string" ||
+    typeof course.when !== "string" ||
+    typeof course.price !== "string" ||
+    typeof course.updatedAt !== "string"
+  ) {
+    return null;
+  }
+  const images = Array.isArray(course.images)
+    ? course.images.filter((item): item is string => typeof item === "string" && isCourseImagePath(item))
+    : [];
+  return {
+    id: course.id,
+    title: course.title,
+    description: course.description,
+    when: course.when,
+    price: course.price,
+    images,
+    updatedAt: course.updatedAt,
+  };
 }
 
 function clean(value: unknown, max: number, multiline = false) {
@@ -34,12 +49,12 @@ export function parseCourseInput(
   body: unknown,
 ): { ok: true; value: CourseInput } | { ok: false; error: string } {
   if (!body || typeof body !== "object") {
-    return { ok: false, error: "Datos no válidos." };
+    return { ok: false, error: "invalid" };
   }
 
   const record = body as Record<string, unknown>;
   const title = clean(record.title, 120);
-  if (!title) return { ok: false, error: "Escribe un título." };
+  if (!title) return { ok: false, error: "title" };
 
   return {
     ok: true,
@@ -48,6 +63,7 @@ export function parseCourseInput(
       description: clean(record.description, 2000, true),
       when: clean(record.when, 160),
       price: clean(record.price, 40),
+      images: [],
     },
   };
 }
@@ -59,7 +75,10 @@ export async function readCourses(): Promise<
     const raw = await readFile(filePath, "utf8");
     const parsed = JSON.parse(raw) as unknown;
     if (!Array.isArray(parsed)) return { ok: false, courses: [] };
-    const courses = parsed.filter(isCourse).sort((a, b) => {
+    const courses = parsed.flatMap((item) => {
+      const course = asCourse(item);
+      return course ? [course] : [];
+    }).sort((a, b) => {
       return b.updatedAt.localeCompare(a.updatedAt);
     });
     return { ok: true, courses };
@@ -111,7 +130,9 @@ export async function updateCourse(id: string, input: CourseInput) {
 
 export async function deleteCourse(id: string) {
   const current = await readCourses();
-  if (!current.courses.some((course) => course.id === id)) return false;
+  const existing = current.courses.find((course) => course.id === id);
+  if (!existing) return false;
   await writeCourses(current.courses.filter((course) => course.id !== id));
+  await Promise.all(existing.images.map((image) => deleteCoursePhoto(image)));
   return true;
 }

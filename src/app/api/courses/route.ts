@@ -1,12 +1,14 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
-import { createCourse, parseCourseInput, readCourses } from "@/lib/courses-store";
+import { readCourseRequest } from "@/lib/course-form";
+import { deleteCoursePhoto, saveCoursePhoto } from "@/lib/course-images";
+import { createCourse, readCourses } from "@/lib/courses-store";
 
 export async function GET() {
   const result = await readCourses();
   if (!result.ok) {
     return NextResponse.json(
-      { error: "No se han podido leer los cursos." },
+      { error: "invalid" },
       { status: 500 },
     );
   }
@@ -14,12 +16,26 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const parsed = parseCourseInput(await request.json().catch(() => null));
+  const parsed = await readCourseRequest(request);
   if (!parsed.ok) {
     return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
-  const course = await createCourse(parsed.value);
-  revalidatePath("/cursos");
-  return NextResponse.json(course, { status: 201 });
+  const saved: string[] = [];
+  try {
+    for (const file of parsed.body.files) {
+      const photo = await saveCoursePhoto(file);
+      if (!photo.ok) {
+        await Promise.all(saved.map((image) => deleteCoursePhoto(image)));
+        return NextResponse.json({ error: photo.error }, { status: 400 });
+      }
+      saved.push(photo.path);
+    }
+    const course = await createCourse({ ...parsed.body.value, images: saved });
+    revalidatePath("/cursos");
+    return NextResponse.json(course, { status: 201 });
+  } catch {
+    await Promise.all(saved.map((image) => deleteCoursePhoto(image)));
+    return NextResponse.json({ error: "invalid" }, { status: 500 });
+  }
 }

@@ -4,6 +4,7 @@ export type Course = {
   description: string;
   when: string;
   price: string;
+  images: string[];
   updatedAt: string;
 };
 
@@ -12,4 +13,5 @@ export type CourseInput = {
   description: string;
   when: string;
   price: string;
+  images: string[];
 };

@@ -47,7 +47,14 @@ export const metadata: Metadata = {
   },
   description:
     "Gastrobar italiano de especialidad en Sevilla. Pasta fresca artesanal, focaccias, piadinas y menús.",
-  icons: { icon: "/logo.png" },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/icon-32.png", type: "image/png", sizes: "32x32" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
+  },
 };
 
 export const viewport: Viewport = {

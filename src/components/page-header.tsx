@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useLanguage } from "@/components/language";
+import { LanguageSwitcher, useLanguage } from "@/components/language";
 
 export function PageHeader({
   title,
@@ -13,10 +13,11 @@ export function PageHeader({
   const { ui } = useLanguage();
 
   return (
-    <header className="mb-12">
+    <header className="mb-12 min-w-0">
+      <LanguageSwitcher compact />
       <Link
         href="/"
-        className="text-[0.72rem] font-medium tracking-[0.28em] text-[#f4efe6]/65 uppercase"
+        className="mt-6 inline-block text-[0.72rem] font-medium tracking-[0.28em] text-[#f4efe6]/65 uppercase"
       >
         {ui.home}
       </Link>
@@ -25,7 +26,7 @@ export function PageHeader({
         <span className="flex-1 bg-[#f4efe6]" />
         <span className="flex-1 bg-italy-red" />
       </div>
-      <h1 className="mt-5 font-display text-5xl leading-none tracking-tight text-[#f4efe6] sm:text-6xl">
+      <h1 className="mt-5 font-display text-4xl leading-none tracking-tight break-words text-[#f4efe6] sm:text-6xl">
         {title}
       </h1>
       {lede ? (
