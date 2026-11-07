@@ -1,6 +1,5 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
-import { isAdmin } from "@/lib/admin-auth";
 import { createCourse, parseCourseInput, readCourses } from "@/lib/courses-store";
 
 export async function GET() {
@@ -15,10 +14,6 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  if (!(await isAdmin())) {
-    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
-  }
-
   const parsed = parseCourseInput(await request.json().catch(() => null));
   if (!parsed.ok) {
     return NextResponse.json({ error: parsed.error }, { status: 400 });

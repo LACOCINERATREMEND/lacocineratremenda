@@ -64,10 +64,6 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
       const data = (await response.json().catch(() => null)) as
         | (Course & { error?: string })
         | null;
-      if (response.status === 401) {
-        router.replace("/");
-        return;
-      }
       if (!response.ok || !data || !data.id) {
         setError(ui.adminSaveError);
         return;
@@ -92,10 +88,6 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
     setError("");
     try {
       const response = await fetch(`/api/courses/${id}`, { method: "DELETE" });
-      if (response.status === 401) {
-        router.replace("/");
-        return;
-      }
       if (!response.ok) {
         setError(ui.adminDeleteError);
         return;
@@ -111,21 +103,19 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
     }
   }
 
-  async function logout() {
-    await fetch("/api/admin/logout", { method: "POST" });
-    router.replace("/");
-    router.refresh();
+  function closePanel() {
+    router.push("/");
   }
 
   return (
     <div className="flex flex-1 flex-col">
-      <main className="mx-auto w-full max-w-2xl flex-1 px-5 py-10 sm:px-8 sm:py-14">
+      <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-8 sm:px-8 sm:py-14">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-[0.72rem] tracking-[0.28em] text-[#f4efe6]/60 uppercase">
               La Cocinera Tremenda
             </p>
-            <h1 className="mt-4 font-heading text-5xl leading-none font-medium italic">
+            <h1 className="mt-3 font-heading text-4xl leading-none font-medium italic sm:text-5xl">
               {ui.adminCourses}
             </h1>
           </div>
@@ -133,7 +123,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
             type="button"
             variant="outline"
             className="h-11 shrink-0"
-            onClick={logout}
+            onClick={closePanel}
           >
             {ui.adminLogout}
           </Button>
@@ -142,8 +132,11 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
           {ui.adminHint}
         </p>
 
-        <form onSubmit={onSubmit} className="mt-10 grid gap-4">
-          <h2 className="font-heading text-3xl font-medium">
+        <form
+          onSubmit={onSubmit}
+          className="mt-8 grid gap-4 rounded-md border border-[#f4efe6]/25 bg-black/40 p-4 sm:p-5"
+        >
+          <h2 className="font-heading text-2xl font-medium sm:text-3xl">
             {editing ? ui.adminEdit : ui.adminNew}
           </h2>
           <div className="grid gap-2">
@@ -152,7 +145,8 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
               id="title"
               value={form.title}
               onChange={(event) => updateField("title", event.target.value)}
-              className="h-11 md:text-base"
+              maxLength={120}
+              className="h-12 text-base"
               required
             />
           </div>
@@ -164,7 +158,8 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
               onChange={(event) =>
                 updateField("description", event.target.value)
               }
-              className="min-h-28 md:text-base"
+              maxLength={2000}
+              className="min-h-32 text-base"
             />
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
@@ -174,7 +169,8 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                 id="when"
                 value={form.when}
                 onChange={(event) => updateField("when", event.target.value)}
-                className="h-11 md:text-base"
+                maxLength={160}
+                className="h-12 text-base"
               />
             </div>
             <div className="grid gap-2">
@@ -183,7 +179,8 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                 id="price"
                 value={form.price}
                 onChange={(event) => updateField("price", event.target.value)}
-                className="h-11 md:text-base"
+                maxLength={40}
+                className="h-12 text-base"
               />
             </div>
           </div>
@@ -193,14 +190,14 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
             </p>
           ) : null}
           <div className="flex flex-col gap-3 sm:flex-row">
-            <Button type="submit" className="h-11" disabled={saving}>
+            <Button type="submit" className="h-12 w-full sm:w-auto" disabled={saving}>
               {saving ? ui.adminSaving : ui.adminSave}
             </Button>
             {editing ? (
               <Button
                 type="button"
                 variant="outline"
-                className="h-11"
+                className="h-12 w-full sm:w-auto"
                 onClick={resetForm}
               >
                 {ui.adminCancel}
@@ -218,11 +215,11 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
               {ui.adminEmpty}
             </p>
           ) : (
-            <ul className="mt-6 divide-y divide-[#f4efe6]/12">
+            <ul className="mt-5 grid gap-3">
               {courses.map((course) => (
-                <li key={course.id} className="py-5">
+                <li key={course.id} className="rounded-md border border-[#f4efe6]/20 p-4">
                   <div className="flex items-baseline justify-between gap-4">
-                    <h3 className="font-heading text-3xl leading-none">
+                    <h3 className="font-heading text-2xl leading-snug">
                       {course.title}
                     </h3>
                     {course.price ? (
@@ -239,11 +236,11 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                       {course.description}
                     </p>
                   ) : null}
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
                     <Button
                       type="button"
                       variant="outline"
-                      className="h-11"
+                      className="h-12"
                       onClick={() => startEdit(course)}
                     >
                       {ui.adminEditBtn}
@@ -253,7 +250,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                         <Button
                           type="button"
                           variant="destructive"
-                          className="h-11"
+                          className="h-12"
                           disabled={saving}
                           onClick={() => remove(course.id)}
                         >
@@ -262,7 +259,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                         <Button
                           type="button"
                           variant="ghost"
-                          className="h-11"
+                          className="h-12"
                           onClick={() => setPendingDelete(null)}
                         >
                           {ui.adminNo}
@@ -272,7 +269,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                       <Button
                         type="button"
                         variant="destructive"
-                        className="h-11"
+                        className="h-12"
                         onClick={() => setPendingDelete(course.id)}
                       >
                         {ui.adminDelete}

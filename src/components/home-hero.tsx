@@ -5,17 +5,13 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { buttonVariants } from "@/components/ui/button";
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { cn } from "cn";
 import { LanguageSwitcher, useLanguage } from "@/components/language";
 
@@ -61,11 +57,7 @@ const homeButton = cn(
 export function HomeHero() {
   const router = useRouter();
   const taps = useRef({ count: 0, last: 0 });
-  const [open, setOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [submitting, setSubmitting] = useState(false);
   const { lang, ui } = useLanguage();
 
   function onLogoTap() {
@@ -75,41 +67,7 @@ export function HomeHero() {
     taps.current.count += 1;
     if (taps.current.count >= 5) {
       taps.current.count = 0;
-      setError("");
-      setOpen(true);
-    }
-  }
-
-  function onOpenChange(next: boolean) {
-    setOpen(next);
-    if (!next) {
-      setPassword("");
-      setError("");
-      setSubmitting(false);
-    }
-  }
-
-  async function onSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setSubmitting(true);
-    setError("");
-    try {
-      const response = await fetch("/api/admin/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ password }),
-      });
-      if (!response.ok) {
-        setError(response.status === 401 ? ui.badPassword : ui.loginFail);
-        return;
-      }
-      setOpen(false);
       router.push("/admin");
-      router.refresh();
-    } catch {
-      setError(ui.loginFail);
-    } finally {
-      setSubmitting(false);
     }
   }
 
@@ -354,53 +312,6 @@ export function HomeHero() {
               {ui.contactClose}
             </DialogClose>
           </div>
-        </DialogContent>
-      </Dialog>
-
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent showCloseButton={false} className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-heading text-4xl font-medium">
-              {ui.access}
-            </DialogTitle>
-            <DialogDescription>
-              {ui.accessHelp}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={onSubmit} className="grid gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="password">{ui.password}</Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                autoFocus
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="h-11 md:text-base"
-                required
-              />
-            </div>
-            {error ? (
-              <p role="alert" className="text-sm text-italy-red">
-                {error}
-              </p>
-            ) : null}
-            <div className="grid grid-cols-2 gap-3">
-              <Button
-                type="button"
-                variant="outline"
-                className="h-11"
-                onClick={() => onOpenChange(false)}
-              >
-                {ui.cancel}
-              </Button>
-              <Button type="submit" className="h-11" disabled={submitting}>
-                {submitting ? ui.entering : ui.enter}
-              </Button>
-            </div>
-          </form>
         </DialogContent>
       </Dialog>
     </div>

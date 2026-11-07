@@ -20,9 +20,13 @@ function isCourse(value: unknown): value is Course {
 
 function clean(value: unknown, max: number, multiline = false) {
   if (typeof value !== "string") return "";
+  const withoutControls = value.replace(
+    multiline ? /[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g : /[\u0000-\u001F]/g,
+    " ",
+  );
   const normalized = multiline
-    ? value.replace(/\r\n/g, "\n").trim()
-    : value.replace(/\s+/g, " ").trim();
+    ? withoutControls.replace(/\r\n/g, "\n").trim()
+    : withoutControls.replace(/\s+/g, " ").trim();
   return normalized.slice(0, max);
 }
 
