@@ -1,16 +1,16 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { AdminVisits } from "@/components/admin-visits";
-import { LanguageSwitcher, useLanguage } from "@/components/language";
+import { AdminFrame } from "@/components/admin-frame";
+import { useLanguage } from "@/components/language";
+import { adminCopy } from "@/data/admin-i18n";
 import { phoneLinks } from "@/lib/seats";
-import type { Course, Signup, ViewBucket } from "@/lib/types";
+import type { Course, Signup } from "@/lib/types";
 
 const MAX_PHOTOS = 4;
 const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
@@ -27,44 +27,47 @@ const emptyForm = {
   published: true,
 };
 
-const statusLabel: Record<Signup["status"], string> = {
-  pendiente: "Pendiente",
-  pagado: "Pagado",
-  cancelado: "Cancelado",
-  reembolsado: "Reembolsado",
-};
+function formFrom(course: Course | null) {
+  if (!course) return emptyForm;
+  return {
+    title: course.title,
+    description: course.description,
+    when: course.when,
+    price: course.price,
+    priceEuros: course.priceCents == null ? "" : String(course.priceCents / 100),
+    maxSeats: course.maxSeats == null ? "" : String(course.maxSeats),
+    published: course.published,
+  };
+}
 
-export function AdminPanel({
-  initialCourses,
-  initialSignups,
-  initialViews,
+export function AdminCourseForm({
+  course,
+  signups: initialSignups,
   stripeConnected,
 }: {
-  initialCourses: Course[];
-  initialSignups: Signup[];
-  initialViews: ViewBucket[];
+  course: Course | null;
+  signups: Signup[];
   stripeConnected: boolean;
 }) {
   const router = useRouter();
-  const [section, setSection] = useState<"visitas" | "cursos">("visitas");
-  const [courses, setCourses] = useState(initialCourses);
   const [signups, setSignups] = useState(initialSignups);
-  const [form, setForm] = useState(emptyForm);
-  const [editing, setEditing] = useState<string | null>(null);
-  const [savedPhotos, setSavedPhotos] = useState<string[]>([]);
+  const [form, setForm] = useState(() => formFrom(course));
+  const [editing, setEditing] = useState<string | null>(course?.id ?? null);
+  const [savedPhotos, setSavedPhotos] = useState<string[]>(course?.images ?? []);
   const [newPhotos, setNewPhotos] = useState<NewPhoto[]>([]);
   const [error, setError] = useState("");
   const [saving, setSaving] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
-  const { ui } = useLanguage();
+  const { lang, ui } = useLanguage();
+  const copy = adminCopy[lang];
 
   function messageFor(code: string | undefined) {
     if (code === "title") return ui.adminTitleRequired;
     if (code === "file_type") return ui.adminPhotoType;
     if (code === "file_size") return ui.adminPhotoSize;
     if (code === "too_many") return ui.adminPhotoCount;
-    if (code === "seats") return "Las plazas deben ser un número entre 1 y 500.";
-    if (code === "price") return "El precio de cobro no es válido.";
+    if (code === "seats") return adminCopy[lang].seatsError;
+    if (code === "price") return adminCopy[lang].priceError;
     return ui.adminSaveError;
   }
 
@@ -77,40 +80,6 @@ export function AdminPanel({
     value: string,
   ) {
     setForm((current) => ({ ...current, [key]: value }));
-  }
-
-  function resetForm() {
-    clearNewPhotos();
-    setNewPhotos([]);
-    setSavedPhotos([]);
-    setForm(emptyForm);
-    setEditing(null);
-  }
-
-  function seatsTaken(courseId: string) {
-    return signups.filter(
-      (signup) =>
-        signup.courseId === courseId &&
-        (signup.status === "pendiente" || signup.status === "pagado"),
-    ).length;
-  }
-
-  function startEdit(course: Course) {
-    clearNewPhotos();
-    setNewPhotos([]);
-    setEditing(course.id);
-    setPendingDelete(null);
-    setError("");
-    setSavedPhotos(course.images);
-    setForm({
-      title: course.title,
-      description: course.description,
-      when: course.when,
-      price: course.price,
-      priceEuros: course.priceCents == null ? "" : String(course.priceCents / 100),
-      maxSeats: course.maxSeats == null ? "" : String(course.maxSeats),
-      published: course.published,
-    });
   }
 
   function addPhotos(list: FileList | null) {
@@ -183,13 +152,12 @@ export function AdminPanel({
         setError(messageFor(data?.error));
         return;
       }
-      setCourses((current) => {
-        const next = editing
-          ? current.map((course) => (course.id === data.id ? data : course))
-          : [data, ...current];
-        return next.sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
-      });
-      resetForm();
+      clearNewPhotos();
+      setNewPhotos([]);
+      setSavedPhotos(data.images);
+      setForm(formFrom(data));
+      setEditing(data.id);
+      router.push(`/admin/cursos/${data.id}`);
       router.refresh();
     } catch {
       setError(ui.adminSaveError);
@@ -207,20 +175,14 @@ export function AdminPanel({
         setError(ui.adminDeleteError);
         return;
       }
-      setCourses((current) => current.filter((course) => course.id !== id));
-      setSignups((current) => current.filter((signup) => signup.courseId !== id));
-      if (editing === id) resetForm();
       setPendingDelete(null);
+      router.push("/admin/cursos");
       router.refresh();
     } catch {
       setError(ui.adminDeleteError);
     } finally {
       setSaving(false);
     }
-  }
-
-  function closePanel() {
-    router.push("/");
   }
 
   async function setSignupStatus(id: string, status: "pagado" | "cancelado") {
@@ -247,50 +209,10 @@ export function AdminPanel({
   }
 
   return (
-    <div className="flex flex-1 flex-col">
-      <main className="mx-auto w-full max-w-2xl min-w-0 flex-1 px-4 py-8 sm:px-8 sm:py-14">
-        <LanguageSwitcher compact />
-        <div className="mt-6 flex items-start justify-between gap-4">
-          <div>
-            <p className="text-[0.72rem] tracking-[0.28em] text-[#f4efe6]/60 uppercase">
-              La Cocinera Tremenda
-            </p>
-            <h1 className="mt-3 font-heading text-4xl leading-none font-medium italic sm:text-5xl">
-              {ui.adminCourses}
-            </h1>
-          </div>
-          <Button
-            type="button"
-            variant="outline"
-            className="h-11 shrink-0"
-            onClick={closePanel}
-          >
-            {ui.adminLogout}
-          </Button>
-        </div>
+    <AdminFrame title={editing ? ui.adminEdit : ui.adminNew} back>
         <p className="mt-4 max-w-prose text-sm leading-relaxed text-[#c4b8a4]">
           {ui.adminHint}
         </p>
-        <div className="mt-6 grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => setSection("visitas")}
-            className={`min-h-12 rounded-sm border text-sm font-semibold ${section === "visitas" ? "border-[#f4efe6] bg-[#f4efe6] text-[#141210]" : "border-[#f4efe6]/30 text-[#f4efe6]"}`}
-          >
-            Visitas
-          </button>
-          <button
-            type="button"
-            onClick={() => setSection("cursos")}
-            className={`min-h-12 rounded-sm border text-sm font-semibold ${section === "cursos" ? "border-[#f4efe6] bg-[#f4efe6] text-[#141210]" : "border-[#f4efe6]/30 text-[#f4efe6]"}`}
-          >
-            Cursos
-          </button>
-        </div>
-        {section === "visitas" ? <AdminVisits views={initialViews} /> : null}
-        {section === "cursos" ? (
-        <>
-
         <form
           onSubmit={onSubmit}
           className="mt-8 grid gap-4 rounded-md border border-[#f4efe6]/25 bg-black/40 p-4 sm:p-5"
@@ -343,7 +265,7 @@ export function AdminPanel({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="priceEuros">Precio de cobro (€)</Label>
+              <Label htmlFor="priceEuros">{copy.chargePrice}</Label>
               <Input
                 id="priceEuros"
                 inputMode="decimal"
@@ -353,7 +275,7 @@ export function AdminPanel({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="maxSeats">Plazas</Label>
+              <Label htmlFor="maxSeats">{copy.seatsField}</Label>
               <Input
                 id="maxSeats"
                 inputMode="numeric"
@@ -369,7 +291,7 @@ export function AdminPanel({
               checked={form.published}
               onChange={(event) => setForm((current) => ({ ...current, published: event.target.checked }))}
             />
-            Visible en la web
+            {copy.visibleWeb}
           </label>
           <div className="grid gap-2">
             <Label htmlFor="photos">{ui.adminPhotos}</Label>
@@ -431,7 +353,7 @@ export function AdminPanel({
                 type="button"
                 variant="outline"
                 className="h-12 w-full sm:w-auto"
-                onClick={resetForm}
+                onClick={() => router.push("/admin/cursos")}
               >
                 {ui.adminCancel}
               </Button>
@@ -439,159 +361,80 @@ export function AdminPanel({
           </div>
         </form>
 
-        <section className="mt-14" aria-labelledby="lista-cursos">
-          <h2 id="lista-cursos" className="font-heading text-3xl font-medium">
-            {ui.adminPublished}
-          </h2>
-          {courses.length === 0 ? (
-            <p className="mt-4 text-sm text-[#c4b8a4]">
-              {ui.adminEmpty}
-            </p>
-          ) : (
-            <ul className="mt-5 grid gap-3">
-              {courses.map((course) => (
-                <li key={course.id} className="rounded-md border border-[#f4efe6]/20 p-4">
-                  {course.images.length > 0 ? (
-                    <div className={`mb-3 grid gap-2 ${course.images.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
-                      {course.images.map((src) => (
-                        <img key={src} src={src} alt="" className="aspect-[4/3] w-full rounded-sm object-cover" />
-                      ))}
-                    </div>
-                  ) : null}
-                  <div className="flex items-baseline justify-between gap-4">
-                    <h3 className="font-heading text-2xl leading-snug">
-                      {course.title}
-                    </h3>
-                    {course.price ? (
-                      <p className="shrink-0 text-sm tabular-nums">
-                        {course.price}
-                      </p>
-                    ) : null}
-                  </div>
-                  {course.when ? (
-                    <p className="mt-2 text-sm text-italy-green">{course.when}</p>
-                  ) : null}
-                  <p className="mt-2 text-sm text-[#c4b8a4]">
-                    {course.published ? "Visible" : "Oculto"}
-                    {course.maxSeats == null
-                      ? ""
-                      : ` · ${Math.max(0, course.maxSeats - seatsTaken(course.id))} plazas libres de ${course.maxSeats}`}
-                  </p>
-                  {course.description ? (
-                    <p className="mt-2 text-sm leading-relaxed whitespace-pre-line text-[#c4b8a4]">
-                      {course.description}
-                    </p>
-                  ) : null}
-                  <div className="mt-4 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-12"
-                      onClick={() => startEdit(course)}
-                    >
-                      {ui.adminEditBtn}
-                    </Button>
-                    {pendingDelete === course.id ? (
-                      <>
-                        <Button
-                          type="button"
-                          variant="destructive"
-                          className="h-12"
-                          disabled={saving}
-                          onClick={() => remove(course.id)}
-                        >
-                          {ui.adminYes}
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          className="h-12"
-                          onClick={() => setPendingDelete(null)}
-                        >
-                          {ui.adminNo}
-                        </Button>
-                      </>
-                    ) : (
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        className="h-12"
-                        onClick={() => setPendingDelete(course.id)}
-                      >
-                        {ui.adminDelete}
-                      </Button>
-                    )}
-                  </div>
-                  {pendingDelete === course.id ? (
-                    <p className="mt-2 text-sm text-[#c4b8a4]">
-                      {ui.adminConfirm}
-                    </p>
-                  ) : null}
-                  <div className="mt-5 border-t border-[#f4efe6]/15 pt-4">
-                    <h4 className="text-sm font-semibold tracking-wide text-[#f4efe6] uppercase">Inscritos</h4>
-                    {!stripeConnected ? (
-                      <p className="mt-2 text-sm text-[#c4b8a4]">Stripe no conectado. El pago queda pendiente en el local.</p>
-                    ) : null}
-                    {signups.filter((signup) => signup.courseId === course.id).length === 0 ? (
-                      <p className="mt-2 text-sm text-[#c4b8a4]">Nadie inscrito todavía.</p>
-                    ) : (
-                      <ul className="mt-3 grid gap-3">
-                        {signups
-                          .filter((signup) => signup.courseId === course.id)
-                          .map((signup) => {
-                            const links = phoneLinks(signup.phone);
-                            return (
-                              <li key={signup.id} className="rounded-sm bg-black/30 p-3 text-sm">
-                                <p className="font-semibold">{signup.name}</p>
-                                <p className="mt-1 break-all text-[#f4efe6]/75">{signup.email}</p>
-                                <p className="mt-1">{signup.phone}</p>
-                                <p className="mt-1 text-[#f4efe6]/60">
-                                  {new Date(signup.createdAt).toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}
-                                </p>
-                                <p className="mt-1 text-italy-green">
-                                  {signup.status === "pendiente" && signup.payAtVenue
-                                    ? "Pendiente – pagar en el local"
-                                    : statusLabel[signup.status]}
-                                </p>
-                                <div className="mt-3 flex flex-wrap gap-2">
-                                  {signup.status !== "pagado" && signup.status !== "reembolsado" ? (
-                                    <Button type="button" className="h-10" disabled={saving} onClick={() => setSignupStatus(signup.id, "pagado")}>
-                                      Marcar pagado
-                                    </Button>
-                                  ) : null}
-                                  {signup.status !== "cancelado" && signup.status !== "reembolsado" ? (
-                                    <Button type="button" variant="outline" className="h-10" disabled={saving} onClick={() => setSignupStatus(signup.id, "cancelado")}>
-                                      Cancelar
-                                    </Button>
-                                  ) : null}
-                                  <a href={links.whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center rounded-sm bg-[#25D366] px-3 font-semibold text-white">
-                                    WhatsApp
-                                  </a>
-                                  <a href={links.tel} className="inline-flex h-10 items-center rounded-sm bg-[#f4efe6] px-3 font-semibold text-[#141210]">
-                                    Llamar
-                                  </a>
-                                </div>
-                              </li>
-                            );
-                          })}
-                      </ul>
-                    )}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-        </>
+        {editing ? (
+          <div className="mt-6">
+            {pendingDelete === editing ? (
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Button type="button" variant="destructive" className="h-12" disabled={saving} onClick={() => remove(editing)}>
+                  {ui.adminYes}
+                </Button>
+                <Button type="button" variant="outline" className="h-12" onClick={() => setPendingDelete(null)}>
+                  {ui.adminNo}
+                </Button>
+              </div>
+            ) : (
+              <Button type="button" variant="destructive" className="h-12" onClick={() => setPendingDelete(editing)}>
+                {ui.adminDelete}
+              </Button>
+            )}
+            {pendingDelete === editing ? <p className="mt-2 text-sm text-[#c4b8a4]">{ui.adminConfirm}</p> : null}
+          </div>
         ) : null}
 
-        <Link
-          href="/"
-          className="mt-12 inline-block text-[0.72rem] tracking-[0.28em] text-[#f4efe6]/65 uppercase"
-        >
-          {ui.home}
-        </Link>
-      </main>
-    </div>
+        {editing ? (
+          <section className="mt-10 border-t border-[#f4efe6]/15 pt-6">
+            <h2 className="text-sm font-semibold tracking-wide uppercase">{copy.enrolled}</h2>
+            {!stripeConnected ? <p className="mt-2 text-sm text-[#c4b8a4]">{copy.stripeOff}</p> : null}
+            {signups.length === 0 ? (
+              <p className="mt-2 text-sm text-[#c4b8a4]">{copy.nobody}</p>
+            ) : (
+              <ul className="mt-3 grid gap-3">
+                {signups.map((signup) => {
+                  const links = phoneLinks(signup.phone);
+                  const label =
+                    signup.status === "pendiente" && signup.payAtVenue
+                      ? copy.pendingLocal
+                      : signup.status === "pagado"
+                        ? copy.paid
+                        : signup.status === "cancelado"
+                          ? copy.cancelled
+                          : signup.status === "reembolsado"
+                            ? copy.refunded
+                            : copy.pending;
+                  return (
+                    <li key={signup.id} className="rounded-sm bg-black/30 p-3 text-sm">
+                      <p className="font-semibold">{signup.name}</p>
+                      <p className="mt-1 break-all text-[#f4efe6]/75">{signup.email}</p>
+                      <p className="mt-1">{signup.phone}</p>
+                      <p className="mt-1 text-[#f4efe6]/60">
+                        {new Date(signup.createdAt).toLocaleString(lang, { timeZone: "Europe/Madrid" })}
+                      </p>
+                      <p className="mt-1 text-italy-green">{label}</p>
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {signup.status !== "pagado" && signup.status !== "reembolsado" ? (
+                          <Button type="button" className="h-10" disabled={saving} onClick={() => setSignupStatus(signup.id, "pagado")}>
+                            {copy.markPaid}
+                          </Button>
+                        ) : null}
+                        {signup.status !== "cancelado" && signup.status !== "reembolsado" ? (
+                          <Button type="button" variant="outline" className="h-10" disabled={saving} onClick={() => setSignupStatus(signup.id, "cancelado")}>
+                            {copy.cancelSignup}
+                          </Button>
+                        ) : null}
+                        <a href={links.whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center rounded-sm bg-[#25D366] px-3 font-semibold text-white">
+                          WhatsApp
+                        </a>
+                        <a href={links.tel} className="inline-flex h-10 items-center rounded-sm bg-[#f4efe6] px-3 font-semibold text-[#141210]">
+                          {ui.contactCall}
+                        </a>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </section>
+        ) : null}
+    </AdminFrame>
   );
 }

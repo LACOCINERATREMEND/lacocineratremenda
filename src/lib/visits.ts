@@ -45,6 +45,21 @@ export function viewsByPage(views: ViewBucket[]) {
   }));
 }
 
+const languages = ["es", "it", "en", "fr", "de", "pt", "ja"] as const;
+
+export function dayBreakdown(views: ViewBucket[], day: string) {
+  const rows = views.filter((view) => view.day === day);
+  const countFor = (match: (view: ViewBucket) => boolean) =>
+    rows.reduce((total, view) => (match(view) ? total + view.count : total), 0);
+  return {
+    total: countFor(() => true),
+    pages: pages.map((page) => ({ page, count: countFor((view) => view.page === page) })),
+    languages: languages.map((lang) => ({ lang, count: countFor((view) => view.lang === lang) })),
+    mobile: countFor((view) => view.device === "mobile"),
+    desktop: countFor((view) => view.device === "desktop"),
+  };
+}
+
 export function dailySeries(views: ViewBucket[], days = 14, today = madridDay()) {
   const series = [];
   for (let offset = days - 1; offset >= 0; offset -= 1) {
