@@ -1,19 +1,26 @@
 "use client";
 
+import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
 import { SiteFooter } from "@/components/site-footer";
+import { VisitBeacon } from "@/components/visit-beacon";
 import { useLanguage } from "@/components/language";
+import { signupCopy } from "@/data/signup-i18n";
 import type { Course } from "@/lib/types";
 
 export function CoursesBoard({
   courses,
+  seats = {},
 }: {
   courses: Course[] | null;
+  seats?: Record<string, number | null>;
 }) {
-  const { ui } = useLanguage();
+  const { lang, ui } = useLanguage();
+  const copy = signupCopy[lang];
 
   return (
     <div className="flex flex-1 flex-col">
+      <VisitBeacon page="cursos" />
       <main className="mx-auto w-full max-w-2xl min-w-0 flex-1 px-4 py-8 sm:px-8 sm:py-14">
         <PageHeader title={ui.courses} />
         {courses === null ? (
@@ -61,6 +68,12 @@ export function CoursesBoard({
                     {course.description}
                   </p>
                 ) : null}
+                {seats[course.id] != null ? (
+                  <p className="mt-3 text-sm text-[#f4efe6]/75">{copy.seats(seats[course.id] ?? 0)}</p>
+                ) : null}
+                <Link href={`/cursos/${course.id}`} className="mt-4 inline-flex min-h-11 items-center text-sm font-semibold text-[#f4efe6] underline decoration-[#ce2b37] underline-offset-4">
+                  {copy.open}
+                </Link>
                 </div>
               </li>
             ))}

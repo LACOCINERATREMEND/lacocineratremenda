@@ -22,13 +22,28 @@ function asCourse(value: unknown): Course | null {
   const images = Array.isArray(course.images)
     ? course.images.filter((item): item is string => typeof item === "string" && isCourseImagePath(item))
     : [];
+  const maxSeats =
+    typeof course.maxSeats === "number" &&
+    Number.isInteger(course.maxSeats) &&
+    course.maxSeats > 0
+      ? course.maxSeats
+      : null;
+  const priceCents =
+    typeof course.priceCents === "number" &&
+    Number.isInteger(course.priceCents) &&
+    course.priceCents >= 0
+      ? course.priceCents
+      : null;
   return {
     id: course.id,
     title: course.title,
     description: course.description,
     when: course.when,
     price: course.price,
+    priceCents,
     images,
+    published: course.published !== false,
+    maxSeats,
     updatedAt: course.updatedAt,
   };
 }
@@ -56,6 +71,31 @@ export function parseCourseInput(
   const title = clean(record.title, 120);
   if (!title) return { ok: false, error: "title" };
 
+  let maxSeats: number | null = null;
+  if (record.maxSeats !== undefined && record.maxSeats !== null && String(record.maxSeats).trim() !== "") {
+    const seats = Number(String(record.maxSeats).trim());
+    if (!Number.isInteger(seats) || seats < 1 || seats > 500) {
+      return { ok: false, error: "seats" };
+    }
+    maxSeats = seats;
+  }
+
+  let priceCents: number | null = null;
+  if (record.priceEuros !== undefined && record.priceEuros !== null && String(record.priceEuros).trim() !== "") {
+    const euros = Number(String(record.priceEuros).trim().replace(",", "."));
+    if (!Number.isFinite(euros) || euros < 0 || euros > 10000) {
+      return { ok: false, error: "price" };
+    }
+    priceCents = Math.round(euros * 100);
+  } else if (typeof record.priceCents === "number" && Number.isInteger(record.priceCents)) {
+    priceCents = record.priceCents;
+  }
+
+  const published =
+    record.published === false || record.published === "0" || record.published === "false"
+      ? false
+      : true;
+
   return {
     ok: true,
     value: {
@@ -63,7 +103,10 @@ export function parseCourseInput(
       description: clean(record.description, 2000, true),
       when: clean(record.when, 160),
       price: clean(record.price, 40),
+      priceCents,
       images: [],
+      published,
+      maxSeats,
     },
   };
 }

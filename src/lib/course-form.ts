@@ -34,6 +34,9 @@ export async function readCourseRequest(
     description: form.get("description"),
     when: form.get("when"),
     price: form.get("price"),
+    published: form.get("published"),
+    maxSeats: form.get("maxSeats"),
+    priceEuros: form.get("priceEuros"),
   });
   if (!parsed.ok) return parsed;
 

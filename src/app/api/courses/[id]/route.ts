@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { readCourseRequest } from "@/lib/course-form";
 import { deleteCoursePhoto, saveCoursePhoto } from "@/lib/course-images";
 import { deleteCourse, readCourses, updateCourse } from "@/lib/courses-store";
+import { getStore } from "@/lib/storage";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -54,6 +55,7 @@ export async function DELETE(_request: Request, context: Context) {
   if (!removed) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
+  await getStore().deleteSignupsForCourse(id);
 
   revalidatePath("/cursos");
   return NextResponse.json({ ok: true });

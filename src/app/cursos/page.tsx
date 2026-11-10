@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { CoursesBoard } from "@/components/courses-board";
 import { readCourses } from "@/lib/courses-store";
+import { seatsLeft } from "@/lib/seats";
+import { getStore } from "@/lib/storage";
 
 export const metadata: Metadata = {
   title: "Nuestros cursos",
@@ -11,5 +13,9 @@ export const dynamic = "force-dynamic";
 
 export default async function CursosPage() {
   const result = await readCourses();
-  return <CoursesBoard courses={result.ok ? result.courses : null} />;
+  if (!result.ok) return <CoursesBoard courses={null} seats={{}} />;
+  const signups = await getStore().listSignups();
+  const courses = result.courses.filter((course) => course.published);
+  const seats = Object.fromEntries(courses.map((course) => [course.id, seatsLeft(course, signups)]));
+  return <CoursesBoard courses={courses} seats={seats} />;
 }

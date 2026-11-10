@@ -7,8 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { AdminVisits } from "@/components/admin-visits";
 import { LanguageSwitcher, useLanguage } from "@/components/language";
-import type { Course } from "@/lib/types";
+import { phoneLinks } from "@/lib/seats";
+import type { Course, Signup, ViewBucket } from "@/lib/types";
 
 const MAX_PHOTOS = 4;
 const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
@@ -20,11 +22,33 @@ const emptyForm = {
   description: "",
   when: "",
   price: "",
+  priceEuros: "",
+  maxSeats: "",
+  published: true,
 };
 
-export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
+const statusLabel: Record<Signup["status"], string> = {
+  pendiente: "Pendiente",
+  pagado: "Pagado",
+  cancelado: "Cancelado",
+  reembolsado: "Reembolsado",
+};
+
+export function AdminPanel({
+  initialCourses,
+  initialSignups,
+  initialViews,
+  stripeConnected,
+}: {
+  initialCourses: Course[];
+  initialSignups: Signup[];
+  initialViews: ViewBucket[];
+  stripeConnected: boolean;
+}) {
   const router = useRouter();
+  const [section, setSection] = useState<"visitas" | "cursos">("visitas");
   const [courses, setCourses] = useState(initialCourses);
+  const [signups, setSignups] = useState(initialSignups);
   const [form, setForm] = useState(emptyForm);
   const [editing, setEditing] = useState<string | null>(null);
   const [savedPhotos, setSavedPhotos] = useState<string[]>([]);
@@ -39,6 +63,8 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
     if (code === "file_type") return ui.adminPhotoType;
     if (code === "file_size") return ui.adminPhotoSize;
     if (code === "too_many") return ui.adminPhotoCount;
+    if (code === "seats") return "Las plazas deben ser un número entre 1 y 500.";
+    if (code === "price") return "El precio de cobro no es válido.";
     return ui.adminSaveError;
   }
 
@@ -46,7 +72,10 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
     photos.forEach((photo) => URL.revokeObjectURL(photo.preview));
   }
 
-  function updateField(key: keyof typeof emptyForm, value: string) {
+  function updateField(
+    key: "title" | "description" | "when" | "price" | "priceEuros" | "maxSeats",
+    value: string,
+  ) {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
@@ -56,6 +85,14 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
     setSavedPhotos([]);
     setForm(emptyForm);
     setEditing(null);
+  }
+
+  function seatsTaken(courseId: string) {
+    return signups.filter(
+      (signup) =>
+        signup.courseId === courseId &&
+        (signup.status === "pendiente" || signup.status === "pagado"),
+    ).length;
   }
 
   function startEdit(course: Course) {
@@ -70,6 +107,9 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
       description: course.description,
       when: course.when,
       price: course.price,
+      priceEuros: course.priceCents == null ? "" : String(course.priceCents / 100),
+      maxSeats: course.maxSeats == null ? "" : String(course.maxSeats),
+      published: course.published,
     });
   }
 
@@ -124,6 +164,9 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
       body.set("description", form.description);
       body.set("when", form.when);
       body.set("price", form.price);
+      body.set("priceEuros", form.priceEuros);
+      body.set("maxSeats", form.maxSeats);
+      body.set("published", form.published ? "1" : "0");
       savedPhotos.forEach((photo) => body.append("keep", photo));
       newPhotos.forEach((photo) => body.append("photos", photo.file));
       const response = await fetch(
@@ -165,6 +208,7 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
         return;
       }
       setCourses((current) => current.filter((course) => course.id !== id));
+      setSignups((current) => current.filter((signup) => signup.courseId !== id));
       if (editing === id) resetForm();
       setPendingDelete(null);
       router.refresh();
@@ -177,6 +221,29 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
 
   function closePanel() {
     router.push("/");
+  }
+
+  async function setSignupStatus(id: string, status: "pagado" | "cancelado") {
+    setSaving(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/signups/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      const data = (await response.json().catch(() => null)) as Signup | null;
+      if (!response.ok || !data?.id) {
+        setError(ui.adminSaveError);
+        return;
+      }
+      setSignups((current) => current.map((signup) => (signup.id === data.id ? data : signup)));
+      router.refresh();
+    } catch {
+      setError(ui.adminSaveError);
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -204,6 +271,25 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
         <p className="mt-4 max-w-prose text-sm leading-relaxed text-[#c4b8a4]">
           {ui.adminHint}
         </p>
+        <div className="mt-6 grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setSection("visitas")}
+            className={`min-h-12 rounded-sm border text-sm font-semibold ${section === "visitas" ? "border-[#f4efe6] bg-[#f4efe6] text-[#141210]" : "border-[#f4efe6]/30 text-[#f4efe6]"}`}
+          >
+            Visitas
+          </button>
+          <button
+            type="button"
+            onClick={() => setSection("cursos")}
+            className={`min-h-12 rounded-sm border text-sm font-semibold ${section === "cursos" ? "border-[#f4efe6] bg-[#f4efe6] text-[#141210]" : "border-[#f4efe6]/30 text-[#f4efe6]"}`}
+          >
+            Cursos
+          </button>
+        </div>
+        {section === "visitas" ? <AdminVisits views={initialViews} /> : null}
+        {section === "cursos" ? (
+        <>
 
         <form
           onSubmit={onSubmit}
@@ -256,7 +342,35 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                 className="h-12 text-base"
               />
             </div>
+            <div className="grid gap-2">
+              <Label htmlFor="priceEuros">Precio de cobro (€)</Label>
+              <Input
+                id="priceEuros"
+                inputMode="decimal"
+                value={form.priceEuros}
+                onChange={(event) => updateField("priceEuros", event.target.value)}
+                className="h-12 text-base"
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="maxSeats">Plazas</Label>
+              <Input
+                id="maxSeats"
+                inputMode="numeric"
+                value={form.maxSeats}
+                onChange={(event) => updateField("maxSeats", event.target.value)}
+                className="h-12 text-base"
+              />
+            </div>
           </div>
+          <label className="flex min-h-12 items-center gap-3 text-sm">
+            <input
+              type="checkbox"
+              checked={form.published}
+              onChange={(event) => setForm((current) => ({ ...current, published: event.target.checked }))}
+            />
+            Visible en la web
+          </label>
           <div className="grid gap-2">
             <Label htmlFor="photos">{ui.adminPhotos}</Label>
             <p className="text-sm leading-relaxed text-[#c4b8a4]">{ui.adminPhotosHelp}</p>
@@ -357,6 +471,12 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                   {course.when ? (
                     <p className="mt-2 text-sm text-italy-green">{course.when}</p>
                   ) : null}
+                  <p className="mt-2 text-sm text-[#c4b8a4]">
+                    {course.published ? "Visible" : "Oculto"}
+                    {course.maxSeats == null
+                      ? ""
+                      : ` · ${Math.max(0, course.maxSeats - seatsTaken(course.id))} plazas libres de ${course.maxSeats}`}
+                  </p>
                   {course.description ? (
                     <p className="mt-2 text-sm leading-relaxed whitespace-pre-line text-[#c4b8a4]">
                       {course.description}
@@ -407,11 +527,63 @@ export function AdminPanel({ initialCourses }: { initialCourses: Course[] }) {
                       {ui.adminConfirm}
                     </p>
                   ) : null}
+                  <div className="mt-5 border-t border-[#f4efe6]/15 pt-4">
+                    <h4 className="text-sm font-semibold tracking-wide text-[#f4efe6] uppercase">Inscritos</h4>
+                    {!stripeConnected ? (
+                      <p className="mt-2 text-sm text-[#c4b8a4]">Stripe no conectado. El pago queda pendiente en el local.</p>
+                    ) : null}
+                    {signups.filter((signup) => signup.courseId === course.id).length === 0 ? (
+                      <p className="mt-2 text-sm text-[#c4b8a4]">Nadie inscrito todavía.</p>
+                    ) : (
+                      <ul className="mt-3 grid gap-3">
+                        {signups
+                          .filter((signup) => signup.courseId === course.id)
+                          .map((signup) => {
+                            const links = phoneLinks(signup.phone);
+                            return (
+                              <li key={signup.id} className="rounded-sm bg-black/30 p-3 text-sm">
+                                <p className="font-semibold">{signup.name}</p>
+                                <p className="mt-1 break-all text-[#f4efe6]/75">{signup.email}</p>
+                                <p className="mt-1">{signup.phone}</p>
+                                <p className="mt-1 text-[#f4efe6]/60">
+                                  {new Date(signup.createdAt).toLocaleString("es-ES", { timeZone: "Europe/Madrid" })}
+                                </p>
+                                <p className="mt-1 text-italy-green">
+                                  {signup.status === "pendiente" && signup.payAtVenue
+                                    ? "Pendiente – pagar en el local"
+                                    : statusLabel[signup.status]}
+                                </p>
+                                <div className="mt-3 flex flex-wrap gap-2">
+                                  {signup.status !== "pagado" && signup.status !== "reembolsado" ? (
+                                    <Button type="button" className="h-10" disabled={saving} onClick={() => setSignupStatus(signup.id, "pagado")}>
+                                      Marcar pagado
+                                    </Button>
+                                  ) : null}
+                                  {signup.status !== "cancelado" && signup.status !== "reembolsado" ? (
+                                    <Button type="button" variant="outline" className="h-10" disabled={saving} onClick={() => setSignupStatus(signup.id, "cancelado")}>
+                                      Cancelar
+                                    </Button>
+                                  ) : null}
+                                  <a href={links.whatsapp} target="_blank" rel="noopener noreferrer" className="inline-flex h-10 items-center rounded-sm bg-[#25D366] px-3 font-semibold text-white">
+                                    WhatsApp
+                                  </a>
+                                  <a href={links.tel} className="inline-flex h-10 items-center rounded-sm bg-[#f4efe6] px-3 font-semibold text-[#141210]">
+                                    Llamar
+                                  </a>
+                                </div>
+                              </li>
+                            );
+                          })}
+                      </ul>
+                    )}
+                  </div>
                 </li>
               ))}
             </ul>
           )}
         </section>
+        </>
+        ) : null}
 
         <Link
           href="/"
