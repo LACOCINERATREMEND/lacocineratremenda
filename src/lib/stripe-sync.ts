@@ -67,7 +67,8 @@ export async function syncCourseWithStripe(course: Course) {
       return { ...course, stripeProductId: productId, stripePriceId: priceId };
     }
     return (await saveStripeRefs(course.id, productId, priceId)) ?? course;
-  } catch {
+  } catch (error) {
+    console.error("stripe course sync failed", error);
     return course;
   }
 }

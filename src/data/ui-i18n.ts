@@ -23,6 +23,8 @@ export type UiCopy = {
   badPassword: string;
   loginFail: string;
   passwordMissing: string;
+  showPassword: string;
+  hidePassword: string;
   welcomeTitle: string;
   welcomeSubtitle: string;
   welcome: string[];
@@ -97,6 +99,8 @@ export const uiCopy: Record<Lang, UiCopy> = {
     badPassword: "Contraseña incorrecta.",
     loginFail: "No se ha podido entrar. Prueba de nuevo.",
     passwordMissing: "La contraseña de administración no está configurada.",
+    showPassword: "Mostrar contraseña",
+    hidePassword: "Ocultar contraseña",
     welcomeTitle: "Benvenuti a La Cocinera Tremenda",
     welcomeSubtitle: "Un pedacito de Italia en Sevilla",
     welcome: [
@@ -183,6 +187,8 @@ export const uiCopy: Record<Lang, UiCopy> = {
     badPassword: "Password errata.",
     loginFail: "Accesso non riuscito. Riprova.",
     passwordMissing: "La password di amministrazione non è configurata.",
+    showPassword: "Mostra password",
+    hidePassword: "Nascondi password",
     welcomeTitle: "Benvenuti a La Cocinera Tremenda",
     welcomeSubtitle: "Un pezzetto d’Italia a Siviglia",
     welcome: [
@@ -269,6 +275,8 @@ export const uiCopy: Record<Lang, UiCopy> = {
     badPassword: "Incorrect password.",
     loginFail: "Could not sign in. Try again.",
     passwordMissing: "The admin password is not configured.",
+    showPassword: "Show password",
+    hidePassword: "Hide password",
     welcomeTitle: "Welcome to La Cocinera Tremenda",
     welcomeSubtitle: "A little piece of Italy in Seville",
     welcome: [
@@ -355,6 +363,8 @@ export const uiCopy: Record<Lang, UiCopy> = {
     badPassword: "Mot de passe incorrect.",
     loginFail: "Connexion impossible. Réessayez.",
     passwordMissing: "Le mot de passe d’administration n’est pas configuré.",
+    showPassword: "Afficher le mot de passe",
+    hidePassword: "Masquer le mot de passe",
     welcomeTitle: "Bienvenue à La Cocinera Tremenda",
     welcomeSubtitle: "Un petit morceau d’Italie à Séville",
     welcome: [
@@ -441,6 +451,8 @@ export const uiCopy: Record<Lang, UiCopy> = {
     badPassword: "Falsches Passwort.",
     loginFail: "Anmeldung fehlgeschlagen. Bitte erneut versuchen.",
     passwordMissing: "Das Admin-Passwort ist nicht konfiguriert.",
+    showPassword: "Passwort anzeigen",
+    hidePassword: "Passwort verbergen",
     welcomeTitle: "Willkommen bei La Cocinera Tremenda",
     welcomeSubtitle: "Ein Stück Italien in Sevilla",
     welcome: [
@@ -527,6 +539,8 @@ export const uiCopy: Record<Lang, UiCopy> = {
     badPassword: "Palavra-passe incorreta.",
     loginFail: "Não foi possível entrar. Tente novamente.",
     passwordMissing: "A palavra-passe de administração não está configurada.",
+    showPassword: "Mostrar palavra-passe",
+    hidePassword: "Ocultar palavra-passe",
     welcomeTitle: "Bem-vindos à La Cocinera Tremenda",
     welcomeSubtitle: "Um pedacinho de Itália em Sevilha",
     welcome: [
@@ -613,6 +627,8 @@ export const uiCopy: Record<Lang, UiCopy> = {
     badPassword: "パスワードが違います。",
     loginFail: "入れませんでした。もう一度お試しください。",
     passwordMissing: "管理パスワードが設定されていません。",
+    showPassword: "パスワードを表示",
+    hidePassword: "パスワードを隠す",
     welcomeTitle: "ラ・コチネーラ・トレメンダへようこそ",
     welcomeSubtitle: "セビリアにある、イタリアのひとかけら",
     welcome: [

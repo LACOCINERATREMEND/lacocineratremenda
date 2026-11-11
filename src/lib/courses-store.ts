@@ -2,6 +2,14 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { deleteCoursePhoto, isCourseImagePath } from "@/lib/course-images";
+import { supabaseConfigured } from "@/lib/storage";
+import {
+  deleteSupabaseCourseRow,
+  insertSupabaseCourse,
+  listSupabaseCourseRows,
+  patchSupabaseCourse,
+  type CourseRow,
+} from "@/lib/storage/supabase-courses";
 import type { Course, CourseInput } from "@/lib/types";
 
 const filePath = path.join(process.cwd(), "data", "courses.json");
@@ -131,7 +139,24 @@ export function parseCourseInput(
   };
 }
 
-export async function readCourses(): Promise<
+function courseFromRow(row: CourseRow): Course | null {
+  return asCourse({
+    id: row.id,
+    title: row.title,
+    description: row.description ?? "",
+    when: row.when_text ?? "",
+    price: row.price ?? "",
+    priceCents: row.price_cents,
+    images: row.images,
+    published: row.published,
+    maxSeats: row.max_seats,
+    stripeProductId: row.stripe_product_id ?? "",
+    stripePriceId: row.stripe_price_id ?? "",
+    updatedAt: row.updated_at,
+  });
+}
+
+async function readLocalCourses(): Promise<
   { ok: true; courses: Course[] } | { ok: false; courses: Course[] }
 > {
   try {
@@ -165,7 +190,7 @@ async function writeCourses(courses: Course[]) {
   await rename(temporary, filePath);
 }
 
-export async function createCourse(input: CourseInput) {
+async function createLocalCourse(input: CourseInput) {
   const current = await readCourses();
   const course: Course = {
     id: randomUUID(),
@@ -178,7 +203,7 @@ export async function createCourse(input: CourseInput) {
   return course;
 }
 
-export async function updateCourse(id: string, input: CourseInput) {
+async function updateLocalCourse(id: string, input: CourseInput) {
   const current = await readCourses();
   const existing = current.courses.find((course) => course.id === id);
   if (!existing) return null;
@@ -195,7 +220,7 @@ export async function updateCourse(id: string, input: CourseInput) {
   return updated;
 }
 
-export async function saveStripeRefs(
+async function saveLocalStripeRefs(
   id: string,
   stripeProductId: string,
   stripePriceId: string,
@@ -208,8 +233,90 @@ export async function saveStripeRefs(
   return updated;
 }
 
+export async function readCourses(): Promise<
+  { ok: true; courses: Course[] } | { ok: false; courses: Course[] }
+> {
+  if (!supabaseConfigured()) return readLocalCourses();
+  try {
+    const courses = (await listSupabaseCourseRows()).flatMap((row) => {
+      const course = courseFromRow(row);
+      return course ? [course] : [];
+    });
+    return { ok: true, courses };
+  } catch (error) {
+    console.error("could not list courses", error);
+    return { ok: false, courses: [] };
+  }
+}
+
+export async function createCourse(input: CourseInput, images: string[]) {
+  if (!supabaseConfigured()) return createLocalCourse({ ...input, images });
+  try {
+    const row = await insertSupabaseCourse(input, images);
+    const course = row ? courseFromRow(row) : null;
+    if (!course) throw new Error("supabase_course_empty");
+    return course;
+  } catch (error) {
+    console.error("could not create course", error);
+    throw error;
+  }
+}
+
+export async function updateCourse(id: string, input: CourseInput, images: string[]) {
+  if (!supabaseConfigured()) {
+    const existing = (await readLocalCourses()).courses.find((course) => course.id === id);
+    if (!existing) return null;
+    return updateLocalCourse(id, { ...input, images });
+  }
+  try {
+    const existing = (await readCourses()).courses.find((course) => course.id === id);
+    if (!existing) return null;
+    const row = await patchSupabaseCourse(id, {
+      title: input.title,
+      description: input.description,
+      when_text: input.when,
+      price: input.price,
+      price_cents: input.priceCents,
+      images,
+      published: input.published,
+      max_seats: input.maxSeats,
+      updated_at: new Date().toISOString(),
+    });
+    return row ? courseFromRow(row) : null;
+  } catch (error) {
+    console.error("could not update course", error);
+    throw error;
+  }
+}
+
+export async function saveStripeRefs(id: string, stripeProductId: string, stripePriceId: string) {
+  if (!supabaseConfigured()) return saveLocalStripeRefs(id, stripeProductId, stripePriceId);
+  try {
+    const row = await patchSupabaseCourse(id, {
+      stripe_product_id: stripeProductId,
+      stripe_price_id: stripePriceId,
+    });
+    return row ? courseFromRow(row) : null;
+  } catch (error) {
+    console.error("could not save stripe ids", error);
+    throw error;
+  }
+}
+
 export async function deleteCourse(id: string) {
-  const current = await readCourses();
+  if (supabaseConfigured()) {
+    try {
+      const existing = (await readCourses()).courses.find((course) => course.id === id);
+      if (!existing) return false;
+      await Promise.all(existing.images.map((image) => deleteCoursePhoto(image)));
+      await deleteSupabaseCourseRow(id);
+      return true;
+    } catch (error) {
+      console.error("could not delete course", error);
+      throw error;
+    }
+  }
+  const current = await readLocalCourses();
   const existing = current.courses.find((course) => course.id === id);
   if (!existing) return false;
   await writeCourses(current.courses.filter((course) => course.id !== id));

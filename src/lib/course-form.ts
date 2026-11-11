@@ -14,12 +14,16 @@ export async function readCourseRequest(
 ): Promise<{ ok: true; body: CourseRequest } | { ok: false; error: string }> {
   const type = request.headers.get("content-type") ?? "";
   if (!type.includes("multipart/form-data")) {
-    const parsed = parseCourseInput(await request.json().catch(() => null));
+    const record = (await request.json().catch(() => null)) as Record<string, unknown> | null;
+    const parsed = parseCourseInput(record);
     if (!parsed.ok) return parsed;
     const { images: _images, ...value } = parsed.value;
+    const listed = Array.isArray(record?.images)
+      ? record.images.filter((item): item is string => typeof item === "string" && isCourseImagePath(item))
+      : null;
     return {
       ok: true,
-      body: { value, keep: [], files: [], replaceImages: false },
+      body: { value, keep: listed ?? [], files: [], replaceImages: listed !== null },
     };
   }
 

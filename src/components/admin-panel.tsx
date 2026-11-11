@@ -66,10 +66,12 @@ export function AdminCourseForm({
   course,
   signups: initialSignups,
   stripeConnected,
+  directUpload = false,
 }: {
   course: Course | null;
   signups: Signup[];
   stripeConnected: boolean;
+  directUpload?: boolean;
 }) {
   const router = useRouter();
   const [signups, setSignups] = useState(initialSignups);
@@ -158,15 +160,58 @@ export function AdminCourseForm({
       body.set("price", form.price);
       body.set("maxSeats", form.maxSeats);
       body.set("published", form.published ? "1" : "0");
-      savedPhotos.forEach((photo) => body.append("keep", photo));
-      newPhotos.forEach((photo) => body.append("photos", photo.file));
-      const response = await fetch(
-        editing ? `/api/courses/${editing}` : "/api/courses",
-        {
-          method: editing ? "PUT" : "POST",
-          body,
-        },
-      );
+      const response = await (async () => {
+        const courseUrl = editing ? `/api/courses/${editing}` : "/api/courses";
+        const method = editing ? "PUT" : "POST";
+        if (!directUpload) {
+          savedPhotos.forEach((photo) => body.append("keep", photo));
+          newPhotos.forEach((photo) => body.append("photos", photo.file));
+          return fetch(courseUrl, { method, body });
+        }
+        const uploaded: { publicUrl: string }[] = [];
+        if (newPhotos.length > 0) {
+        const signed = await fetch("/api/admin/course-photos", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            files: newPhotos.map((photo) => ({ contentType: photo.file.type || "image/jpeg" })),
+          }),
+        });
+        if (signed.status === 401) return signed;
+        if (!signed.ok) throw new Error("signed_upload");
+        const payload = (await signed.json()) as {
+          uploads: { signedUrl: string; token: string; publicUrl: string }[];
+        };
+        await Promise.all(
+          payload.uploads.map((upload, index) => {
+            const file = newPhotos[index]?.file;
+            if (!file) throw new Error("signed_upload");
+            const headers: Record<string, string> = {
+              "Content-Type": file.type || "image/jpeg",
+              "x-upsert": "true",
+            };
+            if (upload.token) headers.Authorization = `Bearer ${upload.token}`;
+            return fetch(upload.signedUrl, { method: "PUT", headers, body: file }).then((result) => {
+              if (!result.ok) throw new Error("signed_upload");
+            });
+          }),
+        );
+        uploaded.push(...payload.uploads);
+        }
+        return fetch(courseUrl, {
+          method,
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: form.title,
+            description: form.description,
+            when: form.when,
+            price: form.price,
+            maxSeats: form.maxSeats,
+            published: form.published ? "1" : "0",
+            images: [...savedPhotos, ...uploaded.map((upload) => upload.publicUrl)],
+          }),
+        });
+      })();
       const data = (await response.json().catch(() => null)) as
         | (Course & { error?: string })
         | null;

@@ -4,6 +4,7 @@ import { AdminCourseForm } from "@/components/admin-panel";
 import { adminBlock } from "@/lib/admin-gate";
 import { readCourses } from "@/lib/courses-store";
 import { stripeKeyConfigured } from "@/lib/stripe";
+import { supabaseConfigured } from "@/lib/storage";
 import { getStore } from "@/lib/storage";
 
 export const metadata: Metadata = {
@@ -27,6 +28,7 @@ export default async function EditCoursePage({ params }: Context) {
       course={course}
       signups={signups.filter((signup) => signup.courseId === course.id)}
       stripeConnected={stripeKeyConfigured()}
+      directUpload={supabaseConfigured()}
     />
   );
 }

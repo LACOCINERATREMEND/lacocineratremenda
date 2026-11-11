@@ -1,33 +1,7 @@
 import { randomUUID } from "node:crypto";
 import type { Payment, Signup, ViewBucket } from "@/lib/types";
+import { supabaseRest as rest } from "@/lib/storage/supabase-client";
 import type { DataStore, SignupInput } from "@/lib/storage/types";
-
-function config() {
-  const url = process.env.SUPABASE_URL;
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  if (!url || !key) return null;
-  return { url: url.replace(/\/$/, ""), key };
-}
-
-async function rest(path: string, init?: RequestInit) {
-  const current = config();
-  if (!current) throw new Error("supabase_off");
-  const response = await fetch(`${current.url}/rest/v1/${path}`, {
-    ...init,
-    headers: {
-      apikey: current.key,
-      Authorization: `Bearer ${current.key}`,
-      "Content-Type": "application/json",
-      Prefer: "return=representation",
-      ...(init?.headers ?? {}),
-    },
-  });
-  if (!response.ok) {
-    throw new Error(`supabase_${response.status}`);
-  }
-  if (response.status === 204) return [];
-  return (await response.json()) as unknown;
-}
 
 function mapSignup(row: Record<string, unknown>): Signup {
   const status = row.status;

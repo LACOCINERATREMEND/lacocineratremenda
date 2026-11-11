@@ -24,9 +24,7 @@ export async function PUT(request: Request, context: Context) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
   }
 
-  const keep = parsed.body.replaceImages
-    ? parsed.body.keep.filter((image) => existing.images.includes(image))
-    : existing.images;
+  const keep = parsed.body.replaceImages ? parsed.body.keep : existing.images;
   const saved: string[] = [];
   try {
     for (const file of parsed.body.files) {
@@ -38,7 +36,7 @@ export async function PUT(request: Request, context: Context) {
       saved.push(photo.path);
     }
     const images = [...keep, ...saved];
-    const course = await updateCourse(id, { ...parsed.body.value, images });
+    const course = await updateCourse(id, { ...parsed.body.value, images }, images);
     if (!course) {
       await Promise.all(saved.map((image) => deleteCoursePhoto(image)));
       return NextResponse.json({ error: "not_found" }, { status: 404 });
@@ -49,7 +47,8 @@ export async function PUT(request: Request, context: Context) {
     revalidatePath("/cursos");
     revalidatePath(`/cursos/${id}`);
     return NextResponse.json(synced);
-  } catch {
+  } catch (error) {
+    console.error("course update failed", error);
     await Promise.all(saved.map((image) => deleteCoursePhoto(image)));
     return NextResponse.json({ error: "invalid" }, { status: 500 });
   }

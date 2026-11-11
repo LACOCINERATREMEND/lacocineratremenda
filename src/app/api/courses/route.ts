@@ -37,11 +37,13 @@ export async function POST(request: Request) {
       }
       saved.push(photo.path);
     }
-    const created = await createCourse({ ...parsed.body.value, images: saved });
+    const images = [...parsed.body.keep, ...saved];
+    const created = await createCourse({ ...parsed.body.value, images }, images);
     const course = await syncCourseWithStripe(created);
     revalidatePath("/cursos");
     return NextResponse.json(course, { status: 201 });
-  } catch {
+  } catch (error) {
+    console.error("course create failed", error);
     await Promise.all(saved.map((image) => deleteCoursePhoto(image)));
     return NextResponse.json({ error: "invalid" }, { status: 500 });
   }

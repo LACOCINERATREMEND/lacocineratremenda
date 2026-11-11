@@ -1,6 +1,8 @@
 import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
+import { deleteSupabaseCoursePhoto } from "@/lib/storage/supabase-courses";
+import { supabaseConfigured } from "@/lib/storage";
 
 export const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
 
@@ -11,9 +13,19 @@ const fileName =
 
 export type PhotoKind = "jpg" | "png" | "webp";
 
+const remotePhoto =
+  /^\/storage\/v1\/object\/public\/course-photos\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\.(jpg|png|webp)$/;
+
 export function isCourseImagePath(value: string) {
-  if (!value.startsWith(publicPrefix)) return false;
-  return fileName.test(value.slice(publicPrefix.length));
+  if (value.startsWith(publicPrefix)) return fileName.test(value.slice(publicPrefix.length));
+  try {
+    const url = new URL(value);
+    const base = process.env.SUPABASE_URL;
+    if (!base) return false;
+    return url.origin === new URL(base).origin && remotePhoto.test(url.pathname);
+  } catch {
+    return false;
+  }
 }
 
 export function detectPhoto(bytes: Uint8Array): PhotoKind | null {
@@ -65,6 +77,9 @@ export async function readCourseImage(name: string) {
 }
 
 export async function saveCoursePhoto(bytes: Uint8Array) {
+  if (supabaseConfigured()) {
+    return { ok: false as const, error: "signed_upload" };
+  }
   if (bytes.byteLength > MAX_PHOTO_BYTES) {
     return { ok: false as const, error: "file_size" };
   }
@@ -78,6 +93,12 @@ export async function saveCoursePhoto(bytes: Uint8Array) {
 
 export async function deleteCoursePhoto(publicPath: string) {
   if (!isCourseImagePath(publicPath)) return;
+  if (publicPath.startsWith("https://")) {
+    await deleteSupabaseCoursePhoto(publicPath).catch((error) => {
+      console.error("could not delete course photo", error);
+    });
+    return;
+  }
   const name = publicPath.slice(publicPrefix.length);
   await unlink(path.join(directory, name)).catch(() => undefined);
 }
