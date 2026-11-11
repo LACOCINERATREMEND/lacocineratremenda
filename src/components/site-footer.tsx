@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useLanguage } from "@/components/language";
-import { OPEN_CONSENT_EVENT } from "@/components/consent-banner";
+import { OPEN_CONSENT_EVENT } from "@/lib/consent";
 
 export function SiteFooter({ compact = false }: { compact?: boolean }) {
   const { ui } = useLanguage();

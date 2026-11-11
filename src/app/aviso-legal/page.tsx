@@ -16,8 +16,8 @@ export default function LegalNoticePage() {
       </p>
       <h2>Titular</h2>
       <p>
-        La Cocinera Tremenda. NIF: [NIF]. Domicilio del establecimiento: Mercado del Arenal, puesto 13, Calle
-        Pastor y Landero 8, Sevilla, España. Teléfono y WhatsApp: +34 644 744 571.
+        La Cocinera Tremenda. Domicilio del establecimiento: Mercado del Arenal, puesto 13, Calle Pastor y
+        Landero 8, Sevilla, España. Teléfono y WhatsApp: +34 644 744 571.
       </p>
       <h2>Actividad</h2>
       <p>
