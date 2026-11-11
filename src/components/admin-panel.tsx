@@ -170,6 +170,10 @@ export function AdminCourseForm({
       const data = (await response.json().catch(() => null)) as
         | (Course & { error?: string })
         | null;
+      if (response.status === 401) {
+        router.refresh();
+        return;
+      }
       if (!response.ok || !data || !data.id) {
         setError(messageFor(data?.error));
         return;
@@ -193,6 +197,10 @@ export function AdminCourseForm({
     setError("");
     try {
       const response = await fetch(`/api/courses/${id}`, { method: "DELETE" });
+      if (response.status === 401) {
+        router.refresh();
+        return;
+      }
       if (!response.ok) {
         setError(ui.adminDeleteError);
         return;
@@ -217,6 +225,10 @@ export function AdminCourseForm({
         body: JSON.stringify({ status }),
       });
       const data = (await response.json().catch(() => null)) as Signup | null;
+      if (response.status === 401) {
+        router.refresh();
+        return;
+      }
       if (!response.ok || !data?.id) {
         setError(ui.adminSaveError);
         return;

@@ -1,11 +1,14 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/admin-auth";
 import { readCourses } from "@/lib/courses-store";
 import { getStore } from "@/lib/storage";
 
 type Context = { params: Promise<{ id: string }> };
 
 export async function PATCH(request: Request, context: Context) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const { id } = await context.params;
   const body = (await request.json().catch(() => null)) as { status?: unknown } | null;
   const status = body?.status;

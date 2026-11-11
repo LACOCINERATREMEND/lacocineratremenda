@@ -1,5 +1,6 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/admin-auth";
 import { readCourseRequest } from "@/lib/course-form";
 import { deleteCoursePhoto, saveCoursePhoto } from "@/lib/course-images";
 import { deleteCourse, readCourses, updateCourse } from "@/lib/courses-store";
@@ -9,6 +10,8 @@ import { archiveCourseInStripe, syncCourseWithStripe } from "@/lib/stripe-sync";
 type Context = { params: Promise<{ id: string }> };
 
 export async function PUT(request: Request, context: Context) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const { id } = await context.params;
   const parsed = await readCourseRequest(request);
   if (!parsed.ok) {
@@ -53,6 +56,8 @@ export async function PUT(request: Request, context: Context) {
 }
 
 export async function DELETE(_request: Request, context: Context) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const { id } = await context.params;
   const current = await readCourses();
   const existing = current.courses.find((course) => course.id === id);

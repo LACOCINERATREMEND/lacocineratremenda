@@ -22,6 +22,7 @@ export type UiCopy = {
   entering: string;
   badPassword: string;
   loginFail: string;
+  passwordMissing: string;
   welcomeTitle: string;
   welcomeSubtitle: string;
   welcome: string[];
@@ -95,6 +96,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     entering: "Entrando…",
     badPassword: "Contraseña incorrecta.",
     loginFail: "No se ha podido entrar. Prueba de nuevo.",
+    passwordMissing: "La contraseña de administración no está configurada.",
     welcomeTitle: "Benvenuti a La Cocinera Tremenda",
     welcomeSubtitle: "Un pedacito de Italia en Sevilla",
     welcome: [
@@ -128,7 +130,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     ],
     city: "Sevilla",
     adminCourses: "Cursos",
-    adminLogout: "Cerrar",
+    adminLogout: "Cerrar sesión",
     adminHint: "Lo que guardes aquí se publica en Nuestros cursos.",
     adminNew: "Nuevo curso",
     adminEdit: "Editar curso",
@@ -180,6 +182,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     entering: "Accesso…",
     badPassword: "Password errata.",
     loginFail: "Accesso non riuscito. Riprova.",
+    passwordMissing: "La password di amministrazione non è configurata.",
     welcomeTitle: "Benvenuti a La Cocinera Tremenda",
     welcomeSubtitle: "Un pezzetto d’Italia a Siviglia",
     welcome: [
@@ -213,7 +216,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     ],
     city: "Siviglia",
     adminCourses: "Corsi",
-    adminLogout: "Chiudi",
+    adminLogout: "Esci",
     adminHint: "Quello che salvi qui compare in I nostri corsi.",
     adminNew: "Nuovo corso",
     adminEdit: "Modifica corso",
@@ -265,6 +268,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     entering: "Entering…",
     badPassword: "Incorrect password.",
     loginFail: "Could not sign in. Try again.",
+    passwordMissing: "The admin password is not configured.",
     welcomeTitle: "Welcome to La Cocinera Tremenda",
     welcomeSubtitle: "A little piece of Italy in Seville",
     welcome: [
@@ -298,7 +302,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     ],
     city: "Seville",
     adminCourses: "Courses",
-    adminLogout: "Close",
+    adminLogout: "Log out",
     adminHint: "What you save here is published on Our courses.",
     adminNew: "New course",
     adminEdit: "Edit course",
@@ -350,6 +354,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     entering: "Entrée…",
     badPassword: "Mot de passe incorrect.",
     loginFail: "Connexion impossible. Réessayez.",
+    passwordMissing: "Le mot de passe d’administration n’est pas configuré.",
     welcomeTitle: "Bienvenue à La Cocinera Tremenda",
     welcomeSubtitle: "Un petit morceau d’Italie à Séville",
     welcome: [
@@ -383,7 +388,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     ],
     city: "Séville",
     adminCourses: "Cours",
-    adminLogout: "Fermer",
+    adminLogout: "Fermer la session",
     adminHint: "Ce que vous enregistrez ici est publié dans Nos cours.",
     adminNew: "Nouveau cours",
     adminEdit: "Modifier le cours",
@@ -435,6 +440,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     entering: "Zugang…",
     badPassword: "Falsches Passwort.",
     loginFail: "Anmeldung fehlgeschlagen. Bitte erneut versuchen.",
+    passwordMissing: "Das Admin-Passwort ist nicht konfiguriert.",
     welcomeTitle: "Willkommen bei La Cocinera Tremenda",
     welcomeSubtitle: "Ein Stück Italien in Sevilla",
     welcome: [
@@ -468,7 +474,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     ],
     city: "Sevilla",
     adminCourses: "Kurse",
-    adminLogout: "Schließen",
+    adminLogout: "Abmelden",
     adminHint: "Was du hier speicherst, erscheint unter Unsere Kurse.",
     adminNew: "Neuer Kurs",
     adminEdit: "Kurs bearbeiten",
@@ -520,6 +526,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     entering: "A entrar…",
     badPassword: "Palavra-passe incorreta.",
     loginFail: "Não foi possível entrar. Tente novamente.",
+    passwordMissing: "A palavra-passe de administração não está configurada.",
     welcomeTitle: "Bem-vindos à La Cocinera Tremenda",
     welcomeSubtitle: "Um pedacinho de Itália em Sevilha",
     welcome: [
@@ -553,7 +560,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     ],
     city: "Sevilha",
     adminCourses: "Cursos",
-    adminLogout: "Fechar",
+    adminLogout: "Terminar sessão",
     adminHint: "O que guardares aqui aparece em Os nossos cursos.",
     adminNew: "Novo curso",
     adminEdit: "Editar curso",
@@ -605,6 +612,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     entering: "確認中…",
     badPassword: "パスワードが違います。",
     loginFail: "入れませんでした。もう一度お試しください。",
+    passwordMissing: "管理パスワードが設定されていません。",
     welcomeTitle: "ラ・コチネーラ・トレメンダへようこそ",
     welcomeSubtitle: "セビリアにある、イタリアのひとかけら",
     welcome: [
@@ -638,7 +646,7 @@ export const uiCopy: Record<Lang, UiCopy> = {
     ],
     city: "セビリア",
     adminCourses: "コース",
-    adminLogout: "閉じる",
+    adminLogout: "ログアウト",
     adminHint: "ここで保存した内容はコースのページに公開されます。",
     adminNew: "新しいコース",
     adminEdit: "コースを編集",

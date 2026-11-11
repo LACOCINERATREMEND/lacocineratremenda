@@ -1,5 +1,6 @@
 import { createHash, createHmac, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
+import { NextResponse } from "next/server";
 
 export const ADMIN_COOKIE = "lct_admin";
 
@@ -36,6 +37,13 @@ export async function isAdmin() {
   const right = Buffer.from(expected);
   if (left.length !== right.length) return false;
   return timingSafeEqual(left, right);
+}
+
+export async function requireAdmin() {
+  if (!(await isAdmin())) {
+    return NextResponse.json({ error: "No autorizado." }, { status: 401 });
+  }
+  return null;
 }
 
 export function sessionCookieOptions(request: Request) {

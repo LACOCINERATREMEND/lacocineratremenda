@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AdminCourseList } from "@/components/admin-course-list";
+import { adminBlock } from "@/lib/admin-gate";
 import { readCourses } from "@/lib/courses-store";
 import { stripeKeyConfigured } from "@/lib/stripe";
 import { getStore } from "@/lib/storage";
@@ -12,6 +13,8 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function AdminCoursesPage() {
+  const blocked = await adminBlock();
+  if (blocked) return blocked;
   const [courses, signups] = await Promise.all([readCourses(), getStore().listSignups()]);
   return (
     <AdminCourseList

@@ -33,7 +33,16 @@ export function AdminFrame({
               {title}
             </h1>
           </div>
-          <Button type="button" variant="outline" className="h-11 shrink-0" onClick={() => router.push("/")}>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 shrink-0"
+            onClick={async () => {
+              await fetch("/api/admin/logout", { method: "POST" });
+              router.push("/admin");
+              router.refresh();
+            }}
+          >
             {ui.adminLogout}
           </Button>
         </div>

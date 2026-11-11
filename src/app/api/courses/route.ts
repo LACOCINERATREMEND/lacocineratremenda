@@ -1,11 +1,14 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { requireAdmin } from "@/lib/admin-auth";
 import { readCourseRequest } from "@/lib/course-form";
 import { deleteCoursePhoto, saveCoursePhoto } from "@/lib/course-images";
 import { createCourse, readCourses } from "@/lib/courses-store";
 import { syncCourseWithStripe } from "@/lib/stripe-sync";
 
 export async function GET() {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const result = await readCourses();
   if (!result.ok) {
     return NextResponse.json(
@@ -17,6 +20,8 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const denied = await requireAdmin();
+  if (denied) return denied;
   const parsed = await readCourseRequest(request);
   if (!parsed.ok) {
     return NextResponse.json({ error: parsed.error }, { status: 400 });
