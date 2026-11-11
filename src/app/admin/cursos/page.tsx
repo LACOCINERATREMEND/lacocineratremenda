@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { AdminCourseList } from "@/components/admin-course-list";
 import { adminBlock } from "@/lib/admin-gate";
 import { readCourses } from "@/lib/courses-store";
-import { stripeKeyConfigured } from "@/lib/stripe";
 import { getStore } from "@/lib/storage";
 
 export const metadata: Metadata = {
@@ -20,7 +19,6 @@ export default async function AdminCoursesPage() {
     <AdminCourseList
       courses={courses.courses}
       signups={signups}
-      stripeConnected={stripeKeyConfigured()}
     />
   );
 }

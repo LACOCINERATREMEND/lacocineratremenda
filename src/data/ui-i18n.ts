@@ -43,6 +43,10 @@ export type UiCopy = {
   pressVenue: string;
   pressSummaries: string[];
   city: string;
+  privacy: string;
+  cookiesPolicy: string;
+  legalNotice: string;
+  cookieSettings: string;
   adminCourses: string;
   adminLogout: string;
   adminHint: string;
@@ -133,6 +137,10 @@ export const uiCopy: Record<Lang, UiCopy> = {
       "Ficha del puesto 13 del Mercado del Arenal: cocina italiana preparada y productos gourmet de Calabria.",
     ],
     city: "Sevilla",
+    privacy: "Política de privacidad",
+    cookiesPolicy: "Política de cookies",
+    legalNotice: "Aviso legal",
+    cookieSettings: "Configurar cookies",
     adminCourses: "Cursos",
     adminLogout: "Cerrar sesión",
     adminHint: "Lo que guardes aquí se publica en Nuestros cursos.",
@@ -221,6 +229,10 @@ export const uiCopy: Record<Lang, UiCopy> = {
       "Scheda del banco 13 del Mercado del Arenal: cucina italiana pronta e prodotti gourmet della Calabria.",
     ],
     city: "Siviglia",
+    privacy: "Informativa sulla privacy",
+    cookiesPolicy: "Informativa sui cookie",
+    legalNotice: "Note legali",
+    cookieSettings: "Imposta i cookie",
     adminCourses: "Corsi",
     adminLogout: "Esci",
     adminHint: "Quello che salvi qui compare in I nostri corsi.",
@@ -309,6 +321,10 @@ export const uiCopy: Record<Lang, UiCopy> = {
       "Listing for stall 13 at the Mercado del Arenal: ready Italian food and gourmet products from Calabria.",
     ],
     city: "Seville",
+    privacy: "Privacy policy",
+    cookiesPolicy: "Cookie policy",
+    legalNotice: "Legal notice",
+    cookieSettings: "Cookie settings",
     adminCourses: "Courses",
     adminLogout: "Log out",
     adminHint: "What you save here is published on Our courses.",
@@ -397,6 +413,10 @@ export const uiCopy: Record<Lang, UiCopy> = {
       "Fiche de l’étal 13 du Mercado del Arenal : cuisine italienne préparée et produits gourmet de Calabre.",
     ],
     city: "Séville",
+    privacy: "Politique de confidentialité",
+    cookiesPolicy: "Politique de cookies",
+    legalNotice: "Mentions légales",
+    cookieSettings: "Régler les cookies",
     adminCourses: "Cours",
     adminLogout: "Fermer la session",
     adminHint: "Ce que vous enregistrez ici est publié dans Nos cours.",
@@ -485,6 +505,10 @@ export const uiCopy: Record<Lang, UiCopy> = {
       "Eintrag für Stand 13 im Mercado del Arenal: fertige italienische Küche und Gourmetprodukte aus Kalabrien.",
     ],
     city: "Sevilla",
+    privacy: "Datenschutz",
+    cookiesPolicy: "Cookie-Richtlinie",
+    legalNotice: "Impressum",
+    cookieSettings: "Cookies einstellen",
     adminCourses: "Kurse",
     adminLogout: "Abmelden",
     adminHint: "Was du hier speicherst, erscheint unter Unsere Kurse.",
@@ -573,6 +597,10 @@ export const uiCopy: Record<Lang, UiCopy> = {
       "Ficha do posto 13 do Mercado del Arenal: comida italiana preparada e produtos gourmet da Calábria.",
     ],
     city: "Sevilha",
+    privacy: "Política de privacidade",
+    cookiesPolicy: "Política de cookies",
+    legalNotice: "Aviso legal",
+    cookieSettings: "Configurar cookies",
     adminCourses: "Cursos",
     adminLogout: "Terminar sessão",
     adminHint: "O que guardares aqui aparece em Os nossos cursos.",
@@ -661,6 +689,10 @@ export const uiCopy: Record<Lang, UiCopy> = {
       "アレナル市場13番の店舗情報。できたてのイタリア料理とカラブリアのグルメ食材を扱う店です。",
     ],
     city: "セビリア",
+    privacy: "プライバシーポリシー",
+    cookiesPolicy: "クッキーポリシー",
+    legalNotice: "法的通知",
+    cookieSettings: "クッキー設定",
     adminCourses: "コース",
     adminLogout: "ログアウト",
     adminHint: "ここで保存した内容はコースのページに公開されます。",

@@ -2,7 +2,6 @@ import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { readCourses } from "@/lib/courses-store";
 import { seatsLeft } from "@/lib/seats";
-import { createCheckout, stripeConfigured } from "@/lib/stripe";
 import { getStore } from "@/lib/storage";
 
 function clean(value: unknown, max: number) {
@@ -32,30 +31,16 @@ export async function POST(request: Request) {
   const left = seatsLeft(course, signups);
   if (left === 0) return NextResponse.json({ error: "full" }, { status: 409 });
 
-  const payAtVenue = !stripeConfigured() || !course.stripePriceId;
   const signup = await store.createSignup({
     courseId: course.id,
     name,
     phone,
     email,
     note,
-    payAtVenue,
+    payAtVenue: true,
   });
-
-  let checkoutUrl: string | null = null;
-  if (!payAtVenue) {
-    try {
-      const session = await createCheckout(course, signup);
-      if (session?.url && session.id) {
-        checkoutUrl = session.url;
-        await store.updateSignup(signup.id, { stripeSessionId: session.id });
-      }
-    } catch {
-      await store.updateSignup(signup.id, { payAtVenue: true });
-    }
-  }
 
   revalidatePath("/cursos");
   revalidatePath(`/cursos/${course.id}`);
-  return NextResponse.json({ signup, checkoutUrl, payAtVenue: checkoutUrl ? false : true }, { status: 201 });
+  return NextResponse.json({ signup, payAtVenue: true }, { status: 201 });
 }

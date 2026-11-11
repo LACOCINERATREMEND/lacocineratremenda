@@ -4,7 +4,6 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { readCourseRequest } from "@/lib/course-form";
 import { deleteCoursePhoto, saveCoursePhoto } from "@/lib/course-images";
 import { createCourse, readCourses } from "@/lib/courses-store";
-import { syncCourseWithStripe } from "@/lib/stripe-sync";
 
 export async function GET() {
   const denied = await requireAdmin();
@@ -38,8 +37,7 @@ export async function POST(request: Request) {
       saved.push(photo.path);
     }
     const images = [...parsed.body.keep, ...saved];
-    const created = await createCourse({ ...parsed.body.value, images }, images);
-    const course = await syncCourseWithStripe(created);
+    const course = await createCourse({ ...parsed.body.value, images }, images);
     revalidatePath("/cursos");
     return NextResponse.json(course, { status: 201 });
   } catch (error) {

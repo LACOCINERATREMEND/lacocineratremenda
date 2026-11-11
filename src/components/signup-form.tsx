@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useLanguage } from "@/components/language";
 import { signupCopy } from "@/data/signup-i18n";
@@ -17,7 +18,7 @@ export function SignupForm({
   disabled: boolean;
   initialNotice?: "paid" | "cancel" | null;
 }) {
-  const { lang } = useLanguage();
+  const { lang, ui } = useLanguage();
   const copy = signupCopy[lang];
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -37,17 +38,12 @@ export function SignupForm({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ courseId, name, phone, email, note }),
       });
-      const data = (await response.json().catch(() => null)) as { checkoutUrl?: string | null; error?: string } | null;
       if (response.status === 409) {
         setError(copy.full);
         return;
       }
       if (!response.ok) {
         setError(copy.invalid);
-        return;
-      }
-      if (data?.checkoutUrl) {
-        window.location.href = data.checkoutUrl;
         return;
       }
       setDone(copy.okLocal);
@@ -65,6 +61,7 @@ export function SignupForm({
   return (
     <form onSubmit={onSubmit} className="mt-8 grid gap-4 rounded-md border border-[#f4efe6]/25 p-4">
       <h2 className="font-heading text-3xl font-medium">{copy.title}</h2>
+      <p className="text-sm leading-relaxed text-[#f4efe6]/80">{copy.payInPerson}</p>
       {initialNotice === "cancel" && !done ? (
         <p className="text-sm text-[#f4efe6]/80">{copy.payCancel}</p>
       ) : null}
@@ -85,6 +82,12 @@ export function SignupForm({
         <Label htmlFor="signup-note">{copy.note}</Label>
         <Textarea id="signup-note" value={note} onChange={(event) => setNote(event.target.value)} className="min-h-24 text-base" />
       </div>
+      <p className="text-sm leading-relaxed text-[#f4efe6]/75">
+        {copy.consent}{" "}
+        <Link href="/privacidad" className="underline decoration-[#ce2b37] underline-offset-4">
+          {ui.privacy}
+        </Link>
+      </p>
       {error ? (
         <p role="alert" className="text-sm text-italy-red">
           {error}

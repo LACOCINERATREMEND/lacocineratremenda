@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { AdminCourseForm } from "@/components/admin-panel";
 import { adminBlock } from "@/lib/admin-gate";
-import { stripeKeyConfigured } from "@/lib/stripe";
 import { supabaseConfigured } from "@/lib/storage";
 
 export const metadata: Metadata = {
@@ -18,7 +17,6 @@ export default async function NewCoursePage() {
     <AdminCourseForm
       course={null}
       signups={[]}
-      stripeConnected={stripeKeyConfigured()}
       directUpload={supabaseConfigured()}
     />
   );

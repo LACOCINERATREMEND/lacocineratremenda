@@ -6,7 +6,9 @@ import {
   Noto_Sans_JP,
   Outfit,
 } from "next/font/google";
+import { ConsentBanner } from "@/components/consent-banner";
 import { LanguageProvider } from "@/components/language";
+import { SiteFooter } from "@/components/site-footer";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -78,7 +80,11 @@ export default function RootLayout({
           <span className="flex-1 bg-[#f4efe6]" />
           <span className="flex-1 bg-italy-red" />
         </div>
-        <LanguageProvider>{children}</LanguageProvider>
+        <LanguageProvider>
+          <div className="flex flex-1 flex-col">{children}</div>
+          <SiteFooter />
+          <ConsentBanner />
+        </LanguageProvider>
       </body>
     </html>
   );

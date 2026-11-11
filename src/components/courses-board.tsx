@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { PageHeader } from "@/components/page-header";
-import { SiteFooter } from "@/components/site-footer";
 import { VisitBeacon } from "@/components/visit-beacon";
 import { useLanguage } from "@/components/language";
 import { signupCopy } from "@/data/signup-i18n";
@@ -80,7 +79,6 @@ export function CoursesBoard({
           </ul>
         )}
       </main>
-      <SiteFooter />
     </div>
   );
 }

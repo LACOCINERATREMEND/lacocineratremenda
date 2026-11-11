@@ -34,9 +34,7 @@ export type AdminCopy = {
   seatsError: string;
   priceError: string;
   enrolled: string;
-  stripeOff: string;
-  stripePending: string;
-  stripeSynced: string;
+  payInPerson: string;
   nobody: string;
   pendingLocal: string;
   pending: string;
@@ -83,9 +81,7 @@ export const adminCopy: Record<Lang, AdminCopy> = {
     seatsError: "Las plazas deben ser un número entre 1 y 500.",
     priceError: "El precio de cobro no es válido.",
     enrolled: "Inscritos",
-    stripeOff: "Stripe no conectado. El pago queda pendiente en el local.",
-    stripePending: "Stripe: pendiente de conectar",
-    stripeSynced: "Sincronizado con Stripe",
+    payInPerson: "El pago se realiza en el local.",
     nobody: "Nadie inscrito todavía.",
     pendingLocal: "Pendiente – pagar en el local",
     pending: "Pendiente",
@@ -130,9 +126,7 @@ export const adminCopy: Record<Lang, AdminCopy> = {
     seatsError: "I posti devono essere un numero da 1 a 500.",
     priceError: "Il prezzo da incassare non è valido.",
     enrolled: "Iscritti",
-    stripeOff: "Stripe non collegato. Il pagamento resta da fare in loco.",
-    stripePending: "Stripe: da collegare",
-    stripeSynced: "Sincronizzato con Stripe",
+    payInPerson: "Il pagamento si fa in loco.",
     nobody: "Nessun iscritto per ora.",
     pendingLocal: "In attesa – pagare in loco",
     pending: "In attesa",
@@ -177,9 +171,7 @@ export const adminCopy: Record<Lang, AdminCopy> = {
     seatsError: "Seats must be a number from 1 to 500.",
     priceError: "The charge price is not valid.",
     enrolled: "Signups",
-    stripeOff: "Stripe is not connected. Payment stays pending at the venue.",
-    stripePending: "Stripe: not connected yet",
-    stripeSynced: "Synced with Stripe",
+    payInPerson: "Payment is made at the restaurant.",
     nobody: "No signups yet.",
     pendingLocal: "Pending – pay at the venue",
     pending: "Pending",
@@ -224,9 +216,7 @@ export const adminCopy: Record<Lang, AdminCopy> = {
     seatsError: "Les places doivent être un nombre de 1 à 500.",
     priceError: "Le prix à encaisser n’est pas valable.",
     enrolled: "Inscrits",
-    stripeOff: "Stripe n’est pas connecté. Le paiement reste à faire sur place.",
-    stripePending: "Stripe : pas encore connecté",
-    stripeSynced: "Synchronisé avec Stripe",
+    payInPerson: "Le paiement se fait sur place.",
     nobody: "Personne n’est encore inscrit.",
     pendingLocal: "En attente – payer sur place",
     pending: "En attente",
@@ -271,9 +261,7 @@ export const adminCopy: Record<Lang, AdminCopy> = {
     seatsError: "Plätze müssen eine Zahl von 1 bis 500 sein.",
     priceError: "Der Preis zum Kassieren ist ungültig.",
     enrolled: "Anmeldungen",
-    stripeOff: "Stripe ist nicht verbunden. Die Zahlung bleibt vor Ort offen.",
-    stripePending: "Stripe: noch nicht verbunden",
-    stripeSynced: "Mit Stripe synchronisiert",
+    payInPerson: "Die Zahlung erfolgt im Lokal.",
     nobody: "Noch keine Anmeldungen.",
     pendingLocal: "Offen – vor Ort zahlen",
     pending: "Offen",
@@ -318,9 +306,7 @@ export const adminCopy: Record<Lang, AdminCopy> = {
     seatsError: "Os lugares devem ser um número de 1 a 500.",
     priceError: "O preço a cobrar não é válido.",
     enrolled: "Inscritos",
-    stripeOff: "Stripe não está ligado. O pagamento fica pendente no local.",
-    stripePending: "Stripe: por ligar",
-    stripeSynced: "Sincronizado com o Stripe",
+    payInPerson: "O pagamento faz-se no local.",
     nobody: "Ainda não há inscritos.",
     pendingLocal: "Pendente – pagar no local",
     pending: "Pendente",
@@ -365,9 +351,7 @@ export const adminCopy: Record<Lang, AdminCopy> = {
     seatsError: "定員は1から500の数字にしてください。",
     priceError: "請求価格が正しくありません。",
     enrolled: "申し込み",
-    stripeOff: "Stripeは未接続です。支払いは店頭で保留になります。",
-    stripePending: "Stripe：未接続",
-    stripeSynced: "Stripeと同期済み",
+    payInPerson: "支払いは店頭で行います。",
     nobody: "申し込みはまだありません。",
     pendingLocal: "保留 – 店頭で支払う",
     pending: "保留",

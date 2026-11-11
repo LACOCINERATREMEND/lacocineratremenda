@@ -2,7 +2,6 @@
 
 import { PageHeader } from "@/components/page-header";
 import { VisitBeacon } from "@/components/visit-beacon";
-import { SiteFooter } from "@/components/site-footer";
 import { useLanguage } from "@/components/language";
 
 export function ContactView() {
@@ -17,7 +16,6 @@ export function ContactView() {
           {ui.contactBody}
         </p>
       </main>
-      <SiteFooter />
     </div>
   );
 }

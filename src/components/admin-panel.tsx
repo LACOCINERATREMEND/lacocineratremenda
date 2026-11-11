@@ -65,12 +65,10 @@ async function shrinkPhoto(file: File) {
 export function AdminCourseForm({
   course,
   signups: initialSignups,
-  stripeConnected,
   directUpload = false,
 }: {
   course: Course | null;
   signups: Signup[];
-  stripeConnected: boolean;
   directUpload?: boolean;
 }) {
   const router = useRouter();
@@ -344,9 +342,6 @@ export function AdminCourseForm({
                 placeholder="25"
                 className="h-12 text-base"
               />
-              <p className={`text-xs ${stripeConnected ? "text-italy-green" : "text-[#c4b8a4]"}`}>
-                {stripeConnected ? copy.stripeSynced : copy.stripePending}
-              </p>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="maxSeats">{copy.seatsField}</Label>
@@ -458,7 +453,7 @@ export function AdminCourseForm({
         {editing ? (
           <section className="mt-10 border-t border-[#f4efe6]/15 pt-6">
             <h2 className="text-sm font-semibold tracking-wide uppercase">{copy.enrolled}</h2>
-            {!stripeConnected ? <p className="mt-2 text-sm text-[#c4b8a4]">{copy.stripeOff}</p> : null}
+            <p className="mt-2 text-sm text-[#c4b8a4]">{copy.payInPerson}</p>
             {signups.length === 0 ? (
               <p className="mt-2 text-sm text-[#c4b8a4]">{copy.nobody}</p>
             ) : (

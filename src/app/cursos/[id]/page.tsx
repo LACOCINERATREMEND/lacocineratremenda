@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { PageHeader } from "@/components/page-header";
 import { SignupForm } from "@/components/signup-form";
-import { SiteFooter } from "@/components/site-footer";
 import { VisitBeacon } from "@/components/visit-beacon";
 import { readCourses } from "@/lib/courses-store";
 import { seatsLeft } from "@/lib/seats";
 import { getStore } from "@/lib/storage";
 import { CourseDetailCopy } from "@/components/course-detail";
 
-type Context = { params: Promise<{ id: string }>; searchParams: Promise<{ pago?: string }> };
+type Context = { params: Promise<{ id: string }> };
 
 export const dynamic = "force-dynamic";
 
@@ -20,15 +19,13 @@ export async function generateMetadata({ params }: Context): Promise<Metadata> {
   return { title: course?.title ?? "Curso", robots: { index: false, follow: false } };
 }
 
-export default async function CoursePage({ params, searchParams }: Context) {
+export default async function CoursePage({ params }: Context) {
   const { id } = await params;
-  const query = await searchParams;
   const courses = await readCourses();
   const course = courses.courses.find((item) => item.id === id && item.published);
   if (!course) notFound();
   const signups = await getStore().listSignups();
   const left = seatsLeft(course, signups);
-  const notice = query.pago === "ok" ? "paid" : query.pago === "cancelado" ? "cancel" : null;
 
   return (
     <div className="flex flex-1 flex-col">
@@ -55,9 +52,8 @@ export default async function CoursePage({ params, searchParams }: Context) {
             {course.description}
           </p>
         ) : null}
-        <SignupForm courseId={course.id} disabled={left === 0} initialNotice={notice} />
+        <SignupForm courseId={course.id} disabled={left === 0} />
       </main>
-      <SiteFooter />
     </div>
   );
 }
