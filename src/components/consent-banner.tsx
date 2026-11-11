@@ -9,7 +9,6 @@ import { OPEN_CONSENT_EVENT, readConsent, writeConsent, type ConsentPrefs } from
 
 const emptyPrefs: ConsentPrefs = {
   necessary: true,
-  preferences: false,
   analytics: false,
   marketing: false,
 };
@@ -93,12 +92,6 @@ export function ConsentBanner() {
           <ul className="mt-4 grid gap-3 text-sm">
             <ToggleRow title={copy.necessary} help={copy.necessaryHelp} checked disabled />
             <ToggleRow
-              title={copy.preferences}
-              help={copy.preferencesHelp}
-              checked={prefs.preferences}
-              onChange={(preferences) => setPrefs((current) => ({ ...current, preferences }))}
-            />
-            <ToggleRow
               title={copy.analytics}
               help={copy.analyticsHelp}
               checked={prefs.analytics}
@@ -116,7 +109,7 @@ export function ConsentBanner() {
           <button
             type="button"
             className={button}
-            onClick={() => finish({ necessary: true, preferences: true, analytics: true, marketing: true })}
+            onClick={() => finish({ necessary: true, analytics: true, marketing: true })}
           >
             {copy.accept}
           </button>

@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useLanguage } from "@/components/language";
-import { CONSENT_EVENT, analyticsAllowed } from "@/lib/consent";
+import { CONSENT_EVENT, hasConsent } from "@/lib/consent";
 import type { PageKey } from "@/lib/types";
 
 export function VisitBeacon({ page }: { page: PageKey }) {
@@ -10,7 +10,7 @@ export function VisitBeacon({ page }: { page: PageKey }) {
 
   useEffect(() => {
     function send() {
-      if (!analyticsAllowed()) return;
+      if (!hasConsent("analytics")) return;
       const device = window.matchMedia("(max-width: 768px)").matches ? "mobile" : "desktop";
       void fetch("/api/visits", {
         method: "POST",

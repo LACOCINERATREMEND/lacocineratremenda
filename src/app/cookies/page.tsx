@@ -11,31 +11,32 @@ export default function CookiesPage() {
   return (
     <LegalPage title="Política de cookies">
       <p>
-        Esta página explica las cookies que utiliza La Cocinera Tremenda, según la LSSI-CE. El texto está en
-        español. Una cookie es un archivo que el sitio guarda en tu dispositivo.
+        Esta página describe las cookies y el almacenamiento que usa La Cocinera Tremenda, según la LSSI-CE. El
+        texto está en español.
       </p>
       <h2>Necesarias</h2>
       <p>
-        Permiten navegar, mantener la seguridad y, si entras al panel con la contraseña, la sesión de
-        administración (cookie técnica lct_admin, httpOnly). Están siempre activas.
+        Siempre activas. En el navegador se guarda tu elección del aviso (localStorage, clave lct-consent) y el
+        idioma elegido (lct-lang). Si alguien entra al panel con la contraseña, se crea la cookie de sesión
+        lct_admin, httpOnly, solo para esa administración. Sin estas piezas el aviso, el idioma o el panel no
+        pueden funcionar.
       </p>
-      <h2>Preferencias</h2>
-      <p>Recuerdan el idioma y otras opciones de visualización para que el sitio se muestre como lo dejaste.</p>
       <h2>Analítica</h2>
       <p>
-        Cookies de herramientas de analítica para medir las visitas, las páginas vistas, el idioma y el tipo de
-        dispositivo, y así conocer el uso de la web.
+        No se instalan al entrar. Solo si pulsas Aceptar o activas Analítica en Configurar. Entonces el sitio
+        puede medir las visitas (página, idioma, móvil o escritorio y día). Una herramienta como Google
+        Analytics solo se cargaría en ese caso, mediante la comprobación hasConsent(&quot;analytics&quot;).
       </p>
       <h2>Marketing</h2>
       <p>
-        Cookies de redes sociales y de publicidad para mostrar anuncios y contenidos relacionados con tus
-        visitas, también de terceros.
+        No se instalan al entrar. Cookies de redes sociales o publicidad, por ejemplo Meta Pixel, solo se
+        cargarían si pulsas Aceptar o activas Marketing. El sitio lo comprueba con hasConsent(&quot;marketing&quot;).
       </p>
       <h2>Tu elección</h2>
       <p>
-        Puedes aceptar todas, rechazar las no necesarias o configurar cada categoría. La elección se guarda en
-        este navegador. Puedes cambiarla con «Configurar cookies» en el pie de página. Más información en la{" "}
-        <Link href="/privacidad">política de privacidad</Link>.
+        Aceptar activa analítica y marketing. Rechazar las deja apagadas y mantiene solo las necesarias. En
+        Configurar eliges cada una. La elección queda en este navegador y puedes cambiarla con «Configurar
+        cookies» en el pie. Más información en la <Link href="/privacidad">política de privacidad</Link>.
       </p>
     </LegalPage>
   );
