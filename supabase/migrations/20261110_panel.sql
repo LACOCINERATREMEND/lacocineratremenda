@@ -7,6 +7,8 @@ create table if not exists courses (
   when_text text not null default '',
   price text not null default '',
   price_cents integer,
+  stripe_product_id text not null default '',
+  stripe_price_id text not null default '',
   images jsonb not null default '[]'::jsonb,
   published boolean not null default true,
   max_seats integer,

@@ -8,6 +8,8 @@ export type Course = {
   images: string[];
   published: boolean;
   maxSeats: number | null;
+  stripeProductId: string;
+  stripePriceId: string;
   updatedAt: string;
 };
 

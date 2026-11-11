@@ -32,7 +32,7 @@ export async function POST(request: Request) {
   const left = seatsLeft(course, signups);
   if (left === 0) return NextResponse.json({ error: "full" }, { status: 409 });
 
-  const payAtVenue = !stripeConfigured() || !course.priceCents;
+  const payAtVenue = !stripeConfigured() || !course.stripePriceId;
   const signup = await store.createSignup({
     courseId: course.id,
     name,

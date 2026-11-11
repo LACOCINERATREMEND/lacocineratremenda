@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { AdminCourseForm } from "@/components/admin-panel";
 import { readCourses } from "@/lib/courses-store";
-import { stripeConfigured } from "@/lib/stripe";
+import { stripeKeyConfigured } from "@/lib/stripe";
 import { getStore } from "@/lib/storage";
 
 export const metadata: Metadata = {
@@ -23,7 +23,7 @@ export default async function EditCoursePage({ params }: Context) {
     <AdminCourseForm
       course={course}
       signups={signups.filter((signup) => signup.courseId === course.id)}
-      stripeConnected={stripeConfigured()}
+      stripeConnected={stripeKeyConfigured()}
     />
   );
 }

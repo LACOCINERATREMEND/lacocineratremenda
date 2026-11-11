@@ -10,15 +10,20 @@ import type { Course, Signup } from "@/lib/types";
 export function AdminCourseList({
   courses,
   signups,
+  stripeConnected,
 }: {
   courses: Course[];
   signups: Signup[];
+  stripeConnected: boolean;
 }) {
   const { lang } = useLanguage();
   const copy = adminCopy[lang];
 
   return (
     <AdminFrame title={copy.courses} back>
+      <p className={`mt-4 text-xs ${stripeConnected ? "text-italy-green" : "text-[#c4b8a4]"}`}>
+        {stripeConnected ? copy.stripeSynced : copy.stripePending}
+      </p>
       <Link
         href="/admin/cursos/nuevo"
         className="mt-8 inline-flex min-h-12 w-full items-center justify-center rounded-sm bg-[#009246] px-4 text-base font-semibold text-white"

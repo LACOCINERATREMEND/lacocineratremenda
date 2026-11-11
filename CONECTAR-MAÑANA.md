@@ -26,9 +26,11 @@ La clave `service_role` salta las políticas. No la expongas en el cliente.
 5. Eventos: `checkout.session.completed` y `charge.refunded`.
 6. Copia el secreto `whsec_...` a `STRIPE_WEBHOOK_SECRET`.
 
-Si falta la clave secreta o la URL del sitio, el botón de inscripción guarda la plaza como **pendiente – pagar en el local** y el panel lo indica. No inventes claves.
+Si falta `STRIPE_SECRET_KEY`, no se llama a Stripe. El panel muestra **Stripe: pendiente de conectar** y la inscripción queda como **pendiente – pagar en el local**. No inventes claves.
 
-En cada curso, «Precio de cobro (€)» es el importe que Stripe cobra. El texto «Precio» es solo lo que se enseña.
+El campo **Precio** es el único importe: se enseña en la web y es lo que Stripe cobra. Al guardar un curso, el servidor crea o actualiza un producto de Stripe con el nombre, la descripción y la primera foto, y un precio en EUR (`default_price`). Si cambias el precio, se crea un Price nuevo, pasa a ser el predeterminado y el anterior se archiva. Si ocultas o borras el curso, el producto se archiva. Los identificadores quedan en el curso como `stripeProductId` y `stripePriceId` (en el JSON local y en las columnas `stripe_product_id` y `stripe_price_id`). El pago usa ese `stripe_price_id`.
+
+`NEXT_PUBLIC_SITE_URL` hace falta para las vueltas de Checkout y para que Stripe pueda leer la foto. Sin esa URL el producto se crea igual, pero sin imagen.
 
 ## 3. Vercel
 

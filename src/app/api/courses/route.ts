@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { readCourseRequest } from "@/lib/course-form";
 import { deleteCoursePhoto, saveCoursePhoto } from "@/lib/course-images";
 import { createCourse, readCourses } from "@/lib/courses-store";
+import { syncCourseWithStripe } from "@/lib/stripe-sync";
 
 export async function GET() {
   const result = await readCourses();
@@ -31,7 +32,8 @@ export async function POST(request: Request) {
       }
       saved.push(photo.path);
     }
-    const course = await createCourse({ ...parsed.body.value, images: saved });
+    const created = await createCourse({ ...parsed.body.value, images: saved });
+    const course = await syncCourseWithStripe(created);
     revalidatePath("/cursos");
     return NextResponse.json(course, { status: 201 });
   } catch {

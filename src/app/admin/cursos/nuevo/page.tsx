@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { AdminCourseForm } from "@/components/admin-panel";
-import { stripeConfigured } from "@/lib/stripe";
+import { stripeKeyConfigured } from "@/lib/stripe";
 
 export const metadata: Metadata = {
   title: "Nuevo curso",
@@ -10,5 +10,5 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default function NewCoursePage() {
-  return <AdminCourseForm course={null} signups={[]} stripeConnected={stripeConfigured()} />;
+  return <AdminCourseForm course={null} signups={[]} stripeConnected={stripeKeyConfigured()} />;
 }

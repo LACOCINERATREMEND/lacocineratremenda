@@ -1,6 +1,10 @@
 import Stripe from "stripe";
 import type { Course, Signup } from "@/lib/types";
 
+export function stripeKeyConfigured() {
+  return Boolean(process.env.STRIPE_SECRET_KEY);
+}
+
 export function stripeConfigured() {
   return Boolean(process.env.STRIPE_SECRET_KEY && process.env.NEXT_PUBLIC_SITE_URL);
 }
@@ -14,22 +18,13 @@ export function stripeClient() {
 export async function createCheckout(course: Course, signup: Signup) {
   const stripe = stripeClient();
   const site = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, "");
-  if (!stripe || !site || !course.priceCents) return null;
+  if (!stripe || !site || !course.stripePriceId) return null;
   const session = await stripe.checkout.sessions.create({
     mode: "payment",
     customer_email: signup.email,
     client_reference_id: signup.id,
     metadata: { signupId: signup.id, courseId: course.id },
-    line_items: [
-      {
-        quantity: 1,
-        price_data: {
-          currency: "eur",
-          unit_amount: course.priceCents,
-          product_data: { name: course.title.slice(0, 120) },
-        },
-      },
-    ],
+    line_items: [{ price: course.stripePriceId, quantity: 1 }],
     success_url: `${site}/cursos/${course.id}?pago=ok`,
     cancel_url: `${site}/cursos/${course.id}?pago=cancelado`,
   });

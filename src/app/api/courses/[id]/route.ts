@@ -4,6 +4,7 @@ import { readCourseRequest } from "@/lib/course-form";
 import { deleteCoursePhoto, saveCoursePhoto } from "@/lib/course-images";
 import { deleteCourse, readCourses, updateCourse } from "@/lib/courses-store";
 import { getStore } from "@/lib/storage";
+import { archiveCourseInStripe, syncCourseWithStripe } from "@/lib/stripe-sync";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -41,8 +42,10 @@ export async function PUT(request: Request, context: Context) {
     }
     const removed = existing.images.filter((image) => !images.includes(image));
     await Promise.all(removed.map((image) => deleteCoursePhoto(image)));
+    const synced = await syncCourseWithStripe(course);
     revalidatePath("/cursos");
-    return NextResponse.json(course);
+    revalidatePath(`/cursos/${id}`);
+    return NextResponse.json(synced);
   } catch {
     await Promise.all(saved.map((image) => deleteCoursePhoto(image)));
     return NextResponse.json({ error: "invalid" }, { status: 500 });
@@ -51,6 +54,9 @@ export async function PUT(request: Request, context: Context) {
 
 export async function DELETE(_request: Request, context: Context) {
   const { id } = await context.params;
+  const current = await readCourses();
+  const existing = current.courses.find((course) => course.id === id);
+  if (existing) await archiveCourseInStripe(existing);
   const removed = await deleteCourse(id);
   if (!removed) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });

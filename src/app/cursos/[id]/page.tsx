@@ -36,13 +36,13 @@ export default async function CoursePage({ params, searchParams }: Context) {
       <main className="mx-auto w-full max-w-2xl min-w-0 flex-1 px-4 py-8 sm:px-8 sm:py-14">
         <PageHeader title={course.title} />
         {course.images.length > 0 ? (
-          <div className={`mb-6 grid gap-2 ${course.images.length > 1 ? "grid-cols-2" : ""}`}>
+          <div className="mb-6 grid grid-cols-2 gap-2">
             {course.images.map((src, index) => (
               <img
                 key={src}
                 src={src}
                 alt={index === 0 ? course.title : ""}
-                className="aspect-[4/3] w-full rounded-md object-cover"
+                className={`w-full rounded-md object-cover ${index === 0 ? "col-span-2 aspect-[16/9]" : "aspect-square"}`}
               />
             ))}
           </div>

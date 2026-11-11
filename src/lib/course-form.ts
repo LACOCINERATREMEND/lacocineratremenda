@@ -1,9 +1,4 @@
-import {
-  MAX_COURSE_PHOTOS,
-  MAX_PHOTO_BYTES,
-  detectPhoto,
-  isCourseImagePath,
-} from "@/lib/course-images";
+import { MAX_PHOTO_BYTES, detectPhoto, isCourseImagePath } from "@/lib/course-images";
 import { parseCourseInput } from "@/lib/courses-store";
 import type { CourseInput } from "@/lib/types";
 
@@ -36,7 +31,6 @@ export async function readCourseRequest(
     price: form.get("price"),
     published: form.get("published"),
     maxSeats: form.get("maxSeats"),
-    priceEuros: form.get("priceEuros"),
   });
   if (!parsed.ok) return parsed;
 
@@ -50,9 +44,6 @@ export async function readCourseRequest(
     const bytes = new Uint8Array(await entry.arrayBuffer());
     if (!detectPhoto(bytes)) return { ok: false, error: "file_type" };
     files.push(bytes);
-  }
-  if (keep.length + files.length > MAX_COURSE_PHOTOS) {
-    return { ok: false, error: "too_many" };
   }
 
   const { images: _images, ...value } = parsed.value;

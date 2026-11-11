@@ -2,8 +2,7 @@ import { mkdir, readFile, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 
-export const MAX_COURSE_PHOTOS = 4;
-export const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
+export const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
 
 const directory = path.join(process.cwd(), "data", "course-images");
 const publicPrefix = "/api/course-images/";

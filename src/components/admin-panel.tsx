@@ -12,8 +12,8 @@ import { adminCopy } from "@/data/admin-i18n";
 import { phoneLinks } from "@/lib/seats";
 import type { Course, Signup } from "@/lib/types";
 
-const MAX_PHOTOS = 4;
-const MAX_PHOTO_BYTES = 4 * 1024 * 1024;
+const MAX_PHOTO_BYTES = 15 * 1024 * 1024;
+const MAX_EDGE = 2000;
 
 type NewPhoto = { id: string; file: File; preview: string };
 
@@ -22,10 +22,15 @@ const emptyForm = {
   description: "",
   when: "",
   price: "",
-  priceEuros: "",
   maxSeats: "",
   published: true,
 };
+
+function priceInput(course: Course) {
+  if (course.priceCents == null) return "";
+  const euros = course.priceCents / 100;
+  return Number.isInteger(euros) ? String(euros) : euros.toFixed(2).replace(".", ",");
+}
 
 function formFrom(course: Course | null) {
   if (!course) return emptyForm;
@@ -33,11 +38,28 @@ function formFrom(course: Course | null) {
     title: course.title,
     description: course.description,
     when: course.when,
-    price: course.price,
-    priceEuros: course.priceCents == null ? "" : String(course.priceCents / 100),
+    price: priceInput(course),
     maxSeats: course.maxSeats == null ? "" : String(course.maxSeats),
     published: course.published,
   };
+}
+
+async function shrinkPhoto(file: File) {
+  const bitmap = await createImageBitmap(file);
+  const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
+  const width = Math.max(1, Math.round(bitmap.width * scale));
+  const height = Math.max(1, Math.round(bitmap.height * scale));
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const context = canvas.getContext("2d");
+  if (!context) throw new Error("canvas");
+  context.drawImage(bitmap, 0, 0, width, height);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.82));
+  if (!blob) throw new Error("blob");
+  const name = file.name.replace(/\.[^.]+$/, "") || "foto";
+  return new File([blob], `${name}.jpg`, { type: "image/jpeg" });
 }
 
 export function AdminCourseForm({
@@ -76,40 +98,41 @@ export function AdminCourseForm({
   }
 
   function updateField(
-    key: "title" | "description" | "when" | "price" | "priceEuros" | "maxSeats",
+    key: "title" | "description" | "when" | "price" | "maxSeats",
     value: string,
   ) {
     setForm((current) => ({ ...current, [key]: value }));
   }
 
-  function addPhotos(list: FileList | null) {
+  async function addPhotos(list: FileList | null) {
     if (!list) return;
     const next = [...newPhotos];
     let problem = "";
-    for (const file of Array.from(list)) {
-      if (savedPhotos.length + next.length >= MAX_PHOTOS) {
-        problem = ui.adminPhotoCount;
-        break;
-      }
+    for (const original of Array.from(list)) {
       const allowed =
-        file.type === "image/jpeg" ||
-        file.type === "image/jpg" ||
-        file.type === "image/png" ||
-        file.type === "image/webp" ||
-        (file.type === "" && /\.(jpe?g|png|webp)$/i.test(file.name));
+        original.type === "image/jpeg" ||
+        original.type === "image/jpg" ||
+        original.type === "image/png" ||
+        original.type === "image/webp" ||
+        (original.type === "" && /\.(jpe?g|png|webp)$/i.test(original.name));
       if (!allowed) {
         problem = ui.adminPhotoType;
         continue;
       }
-      if (file.size > MAX_PHOTO_BYTES) {
+      if (original.size > MAX_PHOTO_BYTES) {
         problem = ui.adminPhotoSize;
         continue;
       }
-      next.push({
-        id: crypto.randomUUID(),
-        file,
-        preview: URL.createObjectURL(file),
-      });
+      try {
+        const file = await shrinkPhoto(original);
+        next.push({
+          id: crypto.randomUUID(),
+          file,
+          preview: URL.createObjectURL(file),
+        });
+      } catch {
+        problem = ui.adminPhotoType;
+      }
     }
     setNewPhotos(next);
     setError(problem);
@@ -133,7 +156,6 @@ export function AdminCourseForm({
       body.set("description", form.description);
       body.set("when", form.when);
       body.set("price", form.price);
-      body.set("priceEuros", form.priceEuros);
       body.set("maxSeats", form.maxSeats);
       body.set("published", form.published ? "1" : "0");
       savedPhotos.forEach((photo) => body.append("keep", photo));
@@ -258,21 +280,16 @@ export function AdminCourseForm({
               <Label htmlFor="price">{ui.adminPrice}</Label>
               <Input
                 id="price"
+                inputMode="decimal"
                 value={form.price}
                 onChange={(event) => updateField("price", event.target.value)}
-                maxLength={40}
+                maxLength={12}
+                placeholder="25"
                 className="h-12 text-base"
               />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="priceEuros">{copy.chargePrice}</Label>
-              <Input
-                id="priceEuros"
-                inputMode="decimal"
-                value={form.priceEuros}
-                onChange={(event) => updateField("priceEuros", event.target.value)}
-                className="h-12 text-base"
-              />
+              <p className={`text-xs ${stripeConnected ? "text-italy-green" : "text-[#c4b8a4]"}`}>
+                {stripeConnected ? copy.stripeSynced : copy.stripePending}
+              </p>
             </div>
             <div className="grid gap-2">
               <Label htmlFor="maxSeats">{copy.seatsField}</Label>
@@ -297,7 +314,7 @@ export function AdminCourseForm({
             <Label htmlFor="photos">{ui.adminPhotos}</Label>
             <p className="text-sm leading-relaxed text-[#c4b8a4]">{ui.adminPhotosHelp}</p>
             {savedPhotos.length + newPhotos.length > 0 ? (
-              <ul className={`grid gap-2 ${savedPhotos.length + newPhotos.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+              <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                 {savedPhotos.map((src) => (
                   <li key={src} className="relative overflow-hidden rounded-sm border border-[#f4efe6]/20">
                     <img src={src} alt="" className="aspect-[4/3] w-full object-cover" />
@@ -332,7 +349,7 @@ export function AdminCourseForm({
                 multiple
                 className="sr-only"
                 onChange={(event) => {
-                  addPhotos(event.target.files);
+                  void addPhotos(event.target.files);
                   event.target.value = "";
                 }}
               />

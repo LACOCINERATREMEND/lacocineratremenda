@@ -28,24 +28,46 @@ function asCourse(value: unknown): Course | null {
     course.maxSeats > 0
       ? course.maxSeats
       : null;
+  const parsedCents = centsFromText(course.price);
   const priceCents =
     typeof course.priceCents === "number" &&
     Number.isInteger(course.priceCents) &&
     course.priceCents >= 0
       ? course.priceCents
-      : null;
+      : parsedCents;
   return {
     id: course.id,
     title: course.title,
     description: course.description,
     when: course.when,
-    price: course.price,
+    price: priceCents == null ? course.price : formatEuros(priceCents),
     priceCents,
     images,
     published: course.published !== false,
     maxSeats,
+    stripeProductId: typeof course.stripeProductId === "string" ? course.stripeProductId : "",
+    stripePriceId: typeof course.stripePriceId === "string" ? course.stripePriceId : "",
     updatedAt: course.updatedAt,
   };
+}
+
+export function formatEuros(cents: number) {
+  const euros = cents / 100;
+  const text = Number.isInteger(euros) ? String(euros) : euros.toFixed(2).replace(".", ",");
+  return `${text} €`;
+}
+
+export function centsFromText(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return Math.round(value * 100);
+  }
+  if (typeof value !== "string") return null;
+  const trimmed = value.replace(/€/g, "").replace(/\s/g, "").replace(",", ".");
+  if (!trimmed) return null;
+  if (!/^\d+(\.\d{1,2})?$/.test(trimmed)) return null;
+  const euros = Number(trimmed);
+  if (euros < 0 || euros > 10000) return null;
+  return Math.round(euros * 100);
 }
 
 function clean(value: unknown, max: number, multiline = false) {
@@ -80,14 +102,12 @@ export function parseCourseInput(
     maxSeats = seats;
   }
 
+  const priceText = clean(record.price, 40);
   let priceCents: number | null = null;
-  if (record.priceEuros !== undefined && record.priceEuros !== null && String(record.priceEuros).trim() !== "") {
-    const euros = Number(String(record.priceEuros).trim().replace(",", "."));
-    if (!Number.isFinite(euros) || euros < 0 || euros > 10000) {
-      return { ok: false, error: "price" };
-    }
-    priceCents = Math.round(euros * 100);
-  } else if (typeof record.priceCents === "number" && Number.isInteger(record.priceCents)) {
+  if (priceText) {
+    priceCents = centsFromText(priceText);
+    if (priceCents == null) return { ok: false, error: "price" };
+  } else if (typeof record.priceCents === "number" && Number.isInteger(record.priceCents) && record.priceCents >= 0) {
     priceCents = record.priceCents;
   }
 
@@ -102,7 +122,7 @@ export function parseCourseInput(
       title,
       description: clean(record.description, 2000, true),
       when: clean(record.when, 160),
-      price: clean(record.price, 40),
+      price: priceCents == null ? "" : formatEuros(priceCents),
       priceCents,
       images: [],
       published,
@@ -150,6 +170,8 @@ export async function createCourse(input: CourseInput) {
   const course: Course = {
     id: randomUUID(),
     ...input,
+    stripeProductId: "",
+    stripePriceId: "",
     updatedAt: new Date().toISOString(),
   };
   await writeCourses([course, ...current.courses]);
@@ -163,11 +185,26 @@ export async function updateCourse(id: string, input: CourseInput) {
   const updated: Course = {
     ...existing,
     ...input,
+    stripeProductId: existing.stripeProductId,
+    stripePriceId: existing.stripePriceId,
     updatedAt: new Date().toISOString(),
   };
   await writeCourses(
     current.courses.map((course) => (course.id === id ? updated : course)),
   );
+  return updated;
+}
+
+export async function saveStripeRefs(
+  id: string,
+  stripeProductId: string,
+  stripePriceId: string,
+) {
+  const current = await readCourses();
+  const existing = current.courses.find((course) => course.id === id);
+  if (!existing) return null;
+  const updated: Course = { ...existing, stripeProductId, stripePriceId };
+  await writeCourses(current.courses.map((course) => (course.id === id ? updated : course)));
   return updated;
 }
 
